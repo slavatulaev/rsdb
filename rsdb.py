@@ -80,18 +80,37 @@ def checkIPRange():
     cursor.execute(query)
     for IPDIA in cursor:
         ipNetsInDB.add(IPDIA[0])
-    print('Nets from DB: ', ipNetsInDB)
+#    print('Nets from DB: ', ipNetsInDB)
+    crossIPSet = ipNetsInDB & ipNetsFromFile
     diffIPSet = ipNetsFromFile & (ipNetsInDB ^ ipNetsFromFile)
+    if len(crossIPSet) > 0:
+        print('')
+        print('Following networks are in database and already been scanned:')
+        for ipNet in crossIPSet.iter_cidrs():
+            print(ipNet)
+        print('')
     printALine()
     print('Below see the list of networks never scanned before:')
     print('')
     for ipNet in diffIPSet.iter_cidrs():
         print(ipNet)
     print('')
-    print('Should it be added to the Online Database right now? (Y/N)')
+    printALine()
+    if len(diffIPSet) == 0:
+        print("There's no new networks in your list, all of them already in database (means been scanned). So exiting to the Menu...")
+        return
+    print("Do you want to save to file ip_nets_result.txt? (y/n)")
+    if input() == 'y':
+        file = open('ip_nets_result.txt','w')
+        for ipNet in diffIPSet.iter_cidrs():
+            file.write(str(ipNet) + '\n')
+        print('List of networks been saved to file ip_nets_result.txt')
+        printALine()
+    print('Should it be added to the Online Database right now? (y/n)')
     while True:
         i = input()
-        if i == 'Y' or 'y':
+        print('input is: ', i)
+        if i == 'y':
             print('Starting adding data to online Database, this can take a some time...')
             for ipNet in diffIPSet.iter_cidrs():
                 query = ("INSERT INTO IP_DIAPAZONS (IPDIA) VALUES ('" + str(ipNet) + "')")
@@ -99,11 +118,11 @@ def checkIPRange():
                 cursor.execute(query)
             print('Addind networks DONE')
             break
-        elif i == 'N' or 'n':
-            print('Ok, you choose not to add this data to online Database. /n Exiting to menu.')
+        elif i == 'n':
+            print('Ok, you choose not to add this data to online Database. \n Exiting to menu.')
             break
         else:
-            print("Wrong input. Choose 'Y' or 'N'")
+            print("Wrong input. Choose 'y' or 'y'")
     cursor.close()
     dbRS.close()
     return        
