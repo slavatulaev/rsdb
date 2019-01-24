@@ -14,11 +14,11 @@ dbUserName = sys.argv[3]
 dbPassword = sys.argv[4]
 
 ########################
-def printALine():
+def printALine():       # prints a divider 
     print('==================================================')
     return
 
-def dbTest():
+def dbTest():           # not used in code - delete afterwards
     dbRS = mysql.connector.connect(
         user = dbUserName,
         password = dbPassword,
@@ -44,17 +44,26 @@ def mainMenu():
     printALine()
     return input()
 
-def subMenu1():
+def subMenu1():         # menu for work with ip ranges
     printALine()
-    print('=============== IP Diapazons Submenu =============')
+    print('=============== IP Ranges Submenu =============')
     printALine()
     print('0 : Go to Main Menu')
     print('1 : Check and add to DB IP Ranges')
-    print('2 : Here will be some more functions later')
+    print('2 : IP Range Tools')
     printALine()
     return input()
 
-def checkIPRange():
+def subSubMenu1():      # IP Range Tools subsubmenu
+    printALine()
+    print('=============== IP Tools Submenu =============')
+    printALine()
+    print('0 : Go to IP Ranges Submenu')
+    print('1 : Check and optimize IP Ranges in DB')
+    print('2 : Devide big network into parts')
+    return input()
+
+def checkIPRange():     # checking ip ranges by list and adding new to database
     ipNetsInDB = IPSet()
     ipNetsFromFile = IPSet()
     printALine()
@@ -80,7 +89,6 @@ def checkIPRange():
     cursor.execute(query)
     for IPDIA in cursor:
         ipNetsInDB.add(IPDIA[0])
-#    print('Nets from DB: ', ipNetsInDB)
     crossIPSet = ipNetsInDB & ipNetsFromFile
     diffIPSet = ipNetsFromFile & (ipNetsInDB ^ ipNetsFromFile)
     if len(crossIPSet) > 0:
@@ -127,6 +135,16 @@ def checkIPRange():
     dbRS.close()
     return        
     
+def subSubMenu1execution():
+    while True:
+        sm1res = subSubMenu1()
+        if sm1res == '0':
+            break
+        elif sm1res == '1':
+            print('Here will be Check and optimize IP Ranges in DB')
+        elif sm1res == '2':
+            print('Here will be Devide big network into parts')
+    return
 
 def subMenu1execution():
     while True:
