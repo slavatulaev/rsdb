@@ -134,14 +134,31 @@ def checkIPRange():     # checking ip ranges by list and adding new to database
     cursor.close()
     dbRS.close()
     return        
-    
+
+def optimizeIPRangesDB(): 
+    ipNetsInDB = IPSet() 
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    query = ("SELECT IPDIA FROM IP_DIAPAZONS")
+    cursor.execute(query)
+    print('Reading all the IP Ranges from the Database.... Please Wait....')
+    for IPDIA in cursor:
+        ipNetsInDB.add(IPDIA[0])
+
+    return
+
 def subSubMenu1execution():
     while True:
         sm1res = subSubMenu1()
         if sm1res == '0':
             break
         elif sm1res == '1':
-            print('Here will be Check and optimize IP Ranges in DB')
+            optimizeIPRangesDB()
         elif sm1res == '2':
             print('Here will be Devide big network into parts')
     return
