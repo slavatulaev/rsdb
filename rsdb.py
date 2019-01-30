@@ -15,8 +15,6 @@ dbServerAddress = sys.argv[1]
 dbDBName = sys.argv[2]
 dbUserName = sys.argv[3]
 dbPassword = sys.argv[4]
-#dbPassword = '9CMeAhDpu8[#QtI!qaZ'
-print(dbServerAddress, dbDBName, dbUserName, dbPassword)
 
 ########################
 def printALine():       # prints a divider 
@@ -99,11 +97,14 @@ def checkIPRange():     # checking ip ranges by list and adding new to database
         password = dbPassword,
         host = dbServerAddress,
         database = dbDBName)
+    print('...online DB connected...')
     cursor = dbRS.cursor()
     query = ("SELECT IPDIA FROM IP_DIAPAZONS")
     cursor.execute(query)
+    print('...query %s executed...' % query)
     for IPDIA in cursor:
         ipNetsInDB.add(IPDIA[0])
+    print('...reading cursor finished...')
     crossIPSet = ipNetsInDB & ipNetsFromFile
     diffIPSet = ipNetsFromFile & (ipNetsInDB ^ ipNetsFromFile)
     if len(crossIPSet) > 0:
@@ -173,7 +174,7 @@ def addNewDataFromRS():
     if  dirPath == '': dirPath = 'rs_csv/'
     filesList = filter(lambda x: x.endswith('.csv'), os.listdir(dirPath)) 
     for fileName in filesList:
-        with open(dirPath+fileName) as csvfile:
+        with open(dirPath+fileName, encoding="ISO-8859-1") as csvfile:
             readCSV = csv.reader(csvfile, delimiter=';')
             for row in readCSV:
                 if (row[0] == 'IP Address') or (row[4] == ''): continue
@@ -181,6 +182,28 @@ def addNewDataFromRS():
                 print(selectQuery % selectArgs)
                 cursor.execute(selectQuery, selectArgs)
                 result = cursor.fetchall()
+                if len(row[5]) > 255: 
+                    row[5] = row[5][0:255]
+                if len(row[8]) > 17: 
+                    row[8] = row[8][0:17]
+                if len(row[9]) > 45: 
+                    row[9] = row[9][0:45]
+                if len(row[10]) > 10: 
+                    row[10] = row[10][0:10]
+                if len(row[11]) > 45: 
+                    row[11] = row[11][0:45]
+                if len(row[12]) > 8: 
+                    row[12] = row[12][0:8]
+                if len(row[13]) > 15: 
+                    row[13] = row[13][0:15]
+                if len(row[14]) > 15: 
+                    row[14] = row[14][0:15]
+                if len(row[15]) > 15: 
+                    row[15] = row[15][0:15]
+                if len(row[16]) > 15: 
+                    row[16] = row[16][0:15]
+                if len(row[17]) > 15: 
+                    row[17] = row[17][0:15]
                 if len(result) == 0:
                     insertArgs = (row[0], row[1], row[4], row[5], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[21])
                     print(insertQuery % insertArgs)
@@ -190,6 +213,9 @@ def addNewDataFromRS():
                 else:
                     print('such IP:PORT already in DB')
                     if (row[4] != result[0][2]) or (row[5] != result[0][3]) or (row[8] != result[0][4]) or (row[9] != result[0][5]) or (row[10] != result[0][6]) or (row[11] != result[0][7]) or (row[12] != result[0][8]) or (row[13] != result[0][9]) or (row[14] != result[0][10]) or (row[15] != result[0][11]) or (row[16] != result[0][12]) or (row[17] != result[0][13]) or (row[18] != result[0][14]) or (row[21] != result[0][15]):
+                        if (row[4] != result[0][2]) or (row[5] != result[0][3]) or (row[8] != result[0][4]) or (row[9] != result[0][5]) or (row[10] != result[0][6]) or (row[11] != result[0][7]) or (row[12] != result[0][8]): print('diff in FIRST HALF')
+                        if (row[13] != result[0][9]) or (row[14] != result[0][10]) or (row[15] != result[0][11]) or (row[16] != result[0][12]) or (row[17] != result[0][13]) or (row[18] != result[0][14]) or (row[21] != result[0][15]): print('diff in SECOND HALF')
+
                         updateArgs = (row[4], row[5], row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[21], row[0], row[1])
                         print(updateQuery % updateArgs)
                         cursor.execute(updateQuery, updateArgs)
@@ -197,7 +223,6 @@ def addNewDataFromRS():
                         updCounter = updCounter + 1
     cursor.close()
     dbRS.close()
-
     print('')
     print('=================================================================================')
     print('Totally inserted %i rows and updated %i rows' % (insCounter, updCounter))
