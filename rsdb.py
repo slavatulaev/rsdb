@@ -7,7 +7,6 @@ import sys
 
 import mysql.connector
 from netaddr import *
-import pprint
 
 ########## vars ########
 
