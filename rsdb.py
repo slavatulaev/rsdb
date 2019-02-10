@@ -7,6 +7,8 @@ import sys
 
 import mysql.connector
 from netaddr import *
+import requests
+import json
 
 ########## vars ########
 
@@ -19,6 +21,22 @@ dbPassword = sys.argv[4]
 def printALine():       # prints a divider 
     print('==================================================')
     return
+
+def getIPQualityScoreAPIKey():    #
+    ipQualityScoreAPIKey = 'WCpMDLPHIReSNK3mHw5NUHqaBViDIYz0'
+    return ipQualityScoreAPIKey
+
+def getIPtoGeplocationAPIKey():
+    ipToGeplocationAPIKey = 'f0acbe9b985966c64d1e0bfa0b4e2497'
+    return ipToGeplocationAPIKey
+
+def getIPQualityScore(ipAddr):
+    ipqualityscore = -1
+    return ipqualityscore
+
+def getGetIpIntel(ipAddr):
+    getipintel = -1
+    return getipintel
 
 def dbTest():           # not used in code - delete afterwards
     dbRS = mysql.connector.connect(
@@ -35,18 +53,18 @@ def dbTest():           # not used in code - delete afterwards
     dbRS.close()
     return
 
-def mainMenu():
+def mainMenu():     # Главное меню скрипта
     printALine()
     print('==================== Main Menu ===================')
     printALine()
     print('0 : Exit script')
     print('1 : Check and add IP Ranges')
-    print('2 : Add New Data from RouterScan') 
+    print('2 : Work with Data from RouterScan') 
     print('3 : Working with routers info (not ready yet)')
     printALine()
     return input()
 
-def subMenu1():         # menu for work with ip ranges
+def subMenu1():         # menu for work with ip ranges - Подменю 1 - работа с диапазонами IP адресов
     printALine()
     print('=============== IP Ranges Submenu =============')
     printALine()
@@ -58,11 +76,13 @@ def subMenu1():         # menu for work with ip ranges
 
 def subMenu2():         # menu for Add New Data from RouterScan
     printALine()
-    print('=============== Add New Data from RouterScan Submenu =============')
+    print('=============== Work with Data from RouterScan Submenu =============')
     printALine()
     print('0 : Go to Main Menu')
-    print('1 : Add New Data from RouterScan')
-    print('2 : ... < not ready yet >')
+    print('1 : Add New Data from RouterScan to online database')
+    print('2 : Select Routers Data from Database for Local Processing')
+    print('3 : Submit Routers Data into Online Database')
+    print('4 : ... < not ready yet >')
     printALine()
     return input()
 
@@ -84,9 +104,9 @@ def checkIPRange():     # checking ip ranges by list and adding new to database
     if ipListFileName == '': ipListFileName = 'iplist.txt'
     ipListFile = open(ipListFileName)
     for line in ipListFile:
-        if line.strip() == '': break
+        if line.strip() == '': continue
         if line.find('-') < 0:
-            ipNetsFromFile.add(line)
+            ipNetsFromFile.add(line.strip())
         else:
             ipNetsFromFile.add(IPRange(line[:line.find('-')],line[line.find('-')+1:]))
     print('Nets from File: ', ipNetsFromFile)
@@ -150,7 +170,7 @@ def checkIPRange():     # checking ip ranges by list and adding new to database
     dbRS.close()
     return        
 
-def addNewDataFromRS():
+def addNewDataFromRS():      # Импорт данных сканирования RouterScan в онлайн-базу
     insertQuery = ("INSERT INTO SCANRESS "
                 "(IP, PORT, LOGPASS, DEVICE, BSSID, ESSID, SECURITY, WKEY, WPSPIN, LANIP, LANMASK, WANIP, WANMASK, WANGATEWAY, DNS, COMMENTS) "
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
@@ -229,7 +249,7 @@ def addNewDataFromRS():
     print('')
     return
 
-def optimizeIPRangesDB(): 
+def optimizeIPRangesDB(): ### this function not finished yet....  Оптимизация списка диапазонов
     ipNetsInDB = IPSet() 
     print('Connecting to online DataBase.... Please Wait....')
     dbRS = mysql.connector.connect(
@@ -246,6 +266,127 @@ def optimizeIPRangesDB():
 
     cursor.close()
     dbRS.close()
+    return
+
+def getVpnRoutersRawDataFromDB():          # Получение из базы списка роутеров для поиска в них ВПН
+    selectSQL = "SELECT * FROM SCANRESS WHERE (TAKEN IS NULL OR TAKEN = 0) AND ("
+    selectSQLadd = " AND (CountryCode = '"
+    updateSQL = "UPDATE SCANRESS SET CountryCode = %s, Country = %s, Region = %s, RegionName = %s, City = %s, ISP = %s, ASCode = %s, ZIP = %s WHERE IP = %s AND PORT = %s"
+    print('Reading the list of routers models that can potentially have a VPN Server function')
+    isFirst = True
+    tempStr = ''
+    outputCSV = 'workList.csv'
+    checkerURL = 'http://ip-to-geolocation.com/api/json/'
+    apiKey = getIPtoGeplocationAPIKey()
+    for line in open('lst/vpnrfls.lst','r'):
+        if line.strip() == '': break
+        if not isFirst: tempStr += ' OR '
+        tempStr += "DEVICE LIKE '%" + line[:-1] + "%'"
+        isFirst = False
+    selectSQL += tempStr + ")"
+    print(selectSQL)
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    cursor.execute(selectSQL)
+    result = cursor.fetchall()
+    for rowS in result:
+        print('getting geolocation data of ip ' + str(rowS[0]) + ' country ' + str(rowS[18]))
+        if str(rowS[18]) == '': 
+            r = json.loads(requests.get(checkerURL+str(rowS[0])+'?key='+apiKey).text)
+            if r["status"] == 'success':
+                updateArgs = (r['countryCode'],r['country'],r['region'],r['regionName'],r['city'],r['isp'],r['as'],r['zip'],rowS[0],rowS[1])
+                cursor.execute(updateSQL, updateArgs)
+                dbRS.commit()
+                print('Geolocation of IP %s submitted to DB' % rowS[0])
+    printALine()
+    print('Perform selection by country? Enter two letter country code (ex. US, if empty all countries will be selected):')
+    countryCode = input()
+    if len(countryCode) > 0:
+        selectSQL += selectSQLadd + countryCode +"')"
+        print(selectSQL)
+    cursor.execute(selectSQL)
+    result = cursor.fetchall()
+    csvList = [['IP','Port','login:pass','Device','VPN Type','VPN login:pass','DDNS URL','DDNS RegData','Notes','isVPN','VPN error','NotAccessible','need Setup','AP/brige mode','Country']]
+    for selectedRaw in result:
+        csvList.append(['="'+str(selectedRaw[0])+'"',selectedRaw[1],selectedRaw[2],selectedRaw[3],'','','','','','','','','','',selectedRaw[18]])
+    print('Outputting devices info into workList.csv file...')
+    with open(outputCSV, "w", newline="") as file:
+        writer = csv.writer(file, delimiter =';' )
+        writer.writerows(csvList)
+    cursor.close()
+    dbRS.close()
+    print('Done! Check data in the file workList.csv in current directory')
+    return
+
+def submitVpnRoutersDataToDB():           # запись в базу обработанных записей о роутерах 
+                                            # - в основной таблице SCANRESS помечаются записи успешно обработанные
+                                            # - в таблицу VPNROUTERS записываются исключительно рабочие роутеры для дальнейшей продажи
+    csvFile = 'dataReady.csv'
+    print("Input Data will be taken from 'dataReady.csv' file from current directory. You can get an error in case this file is not exist")
+    updateSCANRESSQuery = "UPDATE SCANRESS SET TAKEN = 1, VPNTYPE = %s, VPNLOGPASS = %s, DDNSURL = %s, DDNSREGDATA = %s, NOTES = %s, ISVPN = %s, VPNERROR = %s, NOTACCESSIBLE = %s, NEEDSETUP = %s, APBRIDGE = %s WHERE IP = %s AND PORT = %s"
+    selectSCANRESSQuery = "SELECT CountryCode, Country, Region, RegionName, City, ISP, ASCode, ZIP FROM SCANRESS WHERE IP = %s AND PORT = %s"
+    selectVPNROUTERSQuery = "SELECT IPADDR FROM VPNROUTERS WHERE IPADDR = '%s'"
+    inserVPNROUTERSQuery = "INSERT INTO VPNROUTERS (IPADDR, PORT, LOGPASS, DEVICE, VPNTYPE, VPNLOGPASS, DDNSURL, DDNSREGDATA, NOTES, CountryCode, Country, Region, RegionName, City, ISP, ASCode, ZIP, OVPNCONFIG, ipqualityscore, getipintel) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET PORT = %s, LOGPASS = %s, DEVICE = %s, VPNTYPE = %s, VPNLOGPASS = %s, DDNSURL = %s, DDNSREGDATA = %s, NOTES = %s, CountryCode = %s, Country = %s, Region = %s, RegionName = %s, City = %s, ISP = %s, ASCode = %s, ZIP = %s, OVPNCONFIG = %s, ipqualityscore = %s, getipintel = %s WHERE IPADDR = %s"
+    setOfMissedConfigFiles = []
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+
+    with open(csvFile, mode='r') as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=';')
+        for row in csv_reader:
+            if ((row["VPN Type"] != '') or (row["VPN login:pass"] != '') or (row["DDNS URL"] != '') or (row["DDNS RegData"] != '') or (row["Notes"] != '') or (row["isVPN"] != '') or (row["VPN error"] != '') or (row["NotAccessible"] != '') or (row["need Setup"] != '') or (row["AP/brige mode"] != '')):
+                updateArgs = (row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], row["isVPN"], row["VPN error"], row["NotAccessible"], row["need Setup"], row["AP/brige mode"], row["IP"], row["Port"])
+                print(updateSCANRESSQuery % updateArgs)
+                cursor.execute(updateSCANRESSQuery, updateArgs)  # записываем в базу в основную таблицу данные по роутерам из csv файла
+                dbRS.commit()
+                if row["isVPN"] != '':
+                    selectArgs = (row["IP"], row["Port"])
+                    print(selectSCANRESSQuery % selectArgs)
+                    cursor.execute(selectSCANRESSQuery, selectArgs)   # берем из базы запись с данными адреса для последующей записи ее в таблицу VPNROUTERS
+                    result = cursor.fetchone()
+                    print(result)
+                    config_data_file = '' 
+                    if row["VPN Type"] == "OpenVPN":
+                        try:
+                            print("reading config file /cfg/%s.ovpn" % row["IP"])
+                            config_data_file = open("cfg/"+row["IP"]+".ovpn", 'rb').read() # читаем файл конфига 
+                        except:
+                            print("There happened an error reading file %s.ovpn" % row["IP"])
+                            print("please prepare correct config file, put it in /cfg/ directory and import %s IP once more" % row["IP"])
+                            setOfMissedConfigFiles.append(row["IP"])
+                    selectArgs = (str(row["IP"]))
+                    selectVPNROUTERSQuery1 = selectVPNROUTERSQuery % str(row["IP"])
+                    print(selectVPNROUTERSQuery1)
+                    cursor.execute(selectVPNROUTERSQuery1) # проверяем есть ли такой айпи 
+                    if len(cursor.fetchall()) == 0:                     # если нет добавляем новую запись
+                        insertArgs = (row["IP"], row["Port"], row["login:pass"], row["Device"], row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7], config_data_file, getIPQualityScore(row["IP"]), getGetIpIntel(row["IP"]))
+    #                   print(inserVPNROUTERSQuery % insertArgs)
+                        cursor.execute(inserVPNROUTERSQuery, insertArgs)
+                        print(row["IP"]+ " successfully inserted into table VPNROUTERS")
+                    else:                                             # если есть обновояем данные в записи - так можно заменить пароль от роутера и любые другие данные кроме айпи, так же при этом запишутся свежие значения чекеров риск и фрауд скора
+                        updateArgs = (row["Port"], row["login:pass"], row["Device"], row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7], config_data_file, getIPQualityScore(row["IP"]), getGetIpIntel(row["IP"]), row["IP"])
+    #                    print(updateVPNROUTERSQuery % updateArgs)
+                        cursor.execute(updateVPNROUTERSQuery, updateArgs)
+                        print(row["IP"]+ " successfully updated in table VPNROUTERS")
+                    dbRS.commit()
+    cursor.close()
+    dbRS.close()
+    print("All data added to database")
+    if len(setOfMissedConfigFiles) > 0:
+        print("Some OpenVPN configuration files was not found in directory /cfg/")
+        print("here the list of them:", setOfMissedConfigFiles)
+        print("Add those files to /cfg/ folder and resubmit data of those IP's once more")
     return
 
 def subSubMenu1execution():
@@ -272,13 +413,17 @@ def subMenu1execution():
 
 def subMenu2execution():
     while True:
-        sm1res = subMenu1()
-        if sm1res == '0':
+        sm2res = subMenu2()
+        if sm2res == '0':
             break
-        elif sm1res == '1':
+        elif sm2res == '1':
             addNewDataFromRS()
-        elif sm1res == '2':
-            print('Here will be some more functions')
+        elif sm2res == '2':
+            getVpnRoutersRawDataFromDB()
+        elif sm2res == '3':
+            submitVpnRoutersDataToDB()
+        elif sm2res == '4':
+            print('Here will be some more functions later...')
     return 
 
 while True:
