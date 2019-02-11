@@ -22,8 +22,8 @@ def printALine():       # prints a divider
     print('==================================================')
     return
 
-def getIPQualityScoreAPIKey():    #
-    ipQualityScoreAPIKey = 'WCpMDLPHIReSNK3mHw5NUHqaBViDIYz0'
+def getIPQualityScoreAPIKey():
+    ipQualityScoreAPIKey = 'BGvBnwvenMqX6BhMYuODspdBG5CncD1s'
     return ipQualityScoreAPIKey
 
 def getIPtoGeplocationAPIKey():
@@ -31,7 +31,13 @@ def getIPtoGeplocationAPIKey():
     return ipToGeplocationAPIKey
 
 def getIPQualityScore(ipAddr):
-    ipqualityscore = -1
+    checkerURL = 'https://www.ipqualityscore.com/api/json/ip/' + getIPQualityScoreAPIKey() + '/' + ipAddr
+    r = json.loads(requests.get(checkerURL).text)
+    if r["message"] == 'Success':
+        ipqualityscore = r["fraud_score"]
+        print("IPqualityScore for IP %s detected and equal to %s" % (ipAddr, ipqualityscore))
+    else:
+        ipqualityscore = -1
     return ipqualityscore
 
 def getGetIpIntel(ipAddr):
