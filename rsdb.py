@@ -16,6 +16,7 @@ dbServerAddress = sys.argv[1]
 dbDBName = sys.argv[2]
 dbUserName = sys.argv[3]
 dbPassword = sys.argv[4]
+workDirecory = os.getcwd()
 
 ########################
 def printALine():       # prints a divider 
@@ -284,7 +285,7 @@ def getVpnRoutersRawDataFromDB():          # Получение из базы с
     outputCSV = 'workList.csv'
     checkerURL = 'http://ip-to-geolocation.com/api/json/'
     apiKey = getIPtoGeplocationAPIKey()
-    for line in open('lst/vpnrfls.lst','r'):
+    for line in open(workDirecory+'/lst/vpnrfls.lst','r'):
         if line.strip() == '': break
         if not isFirst: tempStr += ' OR '
         tempStr += "DEVICE LIKE '%" + line[:-1] + "%'"
@@ -366,10 +367,10 @@ def submitVpnRoutersDataToDB():           # запись в базу обраб�
                     if row["VPN Type"] == "OpenVPN":
                         try:
                             print("reading config file /cfg/%s.ovpn" % row["IP"])
-                            config_data_file = open("cfg/"+row["IP"]+".ovpn", 'rb').read() # читаем файл конфига 
+                            config_data_file = open(workDirecory+"/cfg/"+row["IP"]+".ovpn", 'rb').read() # читаем файл конфига 
                         except:
                             print("There happened an error reading file %s.ovpn" % row["IP"])
-                            print("please prepare correct config file, put it in /cfg/ directory and import %s IP once more" % row["IP"])
+                            print("please prepare correct config file, put it in /cfg/ directory (in current dir) and import %s IP once more" % row["IP"])
                             setOfMissedConfigFiles.append(row["IP"])
                     selectArgs = (str(row["IP"]))
                     selectVPNROUTERSQuery1 = selectVPNROUTERSQuery % str(row["IP"])
@@ -390,9 +391,9 @@ def submitVpnRoutersDataToDB():           # запись в базу обраб�
     dbRS.close()
     print("All data added to database")
     if len(setOfMissedConfigFiles) > 0:
-        print("Some OpenVPN configuration files was not found in directory /cfg/")
+        print("Some OpenVPN configuration files was not found in directory /cfg/ in current dir")
         print("here the list of them:", setOfMissedConfigFiles)
-        print("Add those files to /cfg/ folder and resubmit data of those IP's once more")
+        print("Add those files to /cfg/ folder in current dir and resubmit data of those IP's once more")
     return
 
 def subSubMenu1execution():
