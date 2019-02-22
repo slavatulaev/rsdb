@@ -1,2 +1,1 @@
 IP;Port;login:pass;Device;VPN Type;VPN login:pass;DDNS URL;DDNS RegData;Notes;CountryCode;Country;Region;RegionName;City;ISP;ASCode;ZIP;ipquality_score;getipintel_score;Sold;Byer;SellLink;OldIP;IsVPNDead;isWebLoginDead;RawID
-47.42.77.181;80;admin:admin;Belkin Linksys Smart Wi-Fi (name: Linksys03875, model: Linksys, LLC WRT3200ACM);OpenVPN;vpnrouter:vpnrouter;;;;US;United States;TX;Texas;Weatherford;Charter Communications;AS20115;;0;-1;0;;;;0;0;3
