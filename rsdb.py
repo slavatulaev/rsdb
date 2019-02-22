@@ -23,15 +23,15 @@ def printALine():       # prints a divider
     print('==================================================')
     return
 
-def getIPQualityScoreAPIKey():
+def getIPQualityScoreAPIKey():        #   выбор АПИ ключа для поиска по сайту www.ipqualityscore.com
     ipQualityScoreAPIKey = 'BGvBnwvenMqX6BhMYuODspdBG5CncD1s'
     return ipQualityScoreAPIKey
 
-def getIPtoGeplocationAPIKey():
+def getIPtoGeplocationAPIKey():       #  выбор АПИ ключа для поиска по сайту ipToGeplocation
     ipToGeplocationAPIKey = 'f0acbe9b985966c64d1e0bfa0b4e2497'
     return ipToGeplocationAPIKey
 
-def getIPQualityScore(ipAddr):
+def getIPQualityScore(ipAddr):     # получение risk score с сайта www.ipqualityscore.com
     checkerURL = 'https://www.ipqualityscore.com/api/json/ip/' + getIPQualityScoreAPIKey() + '/' + ipAddr
     r = json.loads(requests.get(checkerURL).text)
     if r["message"] == 'Success':
@@ -41,24 +41,15 @@ def getIPQualityScore(ipAddr):
         ipqualityscore = -1
     return ipqualityscore
 
-def getGetIpIntel(ipAddr):
+def getGetIpIntel(ipAddr):          # получение fraud score с сайта www.getipintel.net
     getipintel = -1
     return getipintel
 
-def dbTest():           # not used in code - delete afterwards
-    dbRS = mysql.connector.connect(
-        user = dbUserName,
-        password = dbPassword,
-        host = dbServerAddress,
-        database = dbDBName)
-    cursor = dbRS.cursor()
-    query = ("SELECT * FROM IP_DIAPAZONS")
-    cursor.execute(query)
-    for (IPDIA, COUNTRY, STATE, CITY, PROVIDER, DATE) in cursor:
-     print("{}, {}, {}, {}, {}, {}".format(IPDIA, COUNTRY, STATE, CITY, PROVIDER, DATE))
-    cursor.close()
-    dbRS.close()
-    return
+def writeTheFile(data, filename):     #запись данных из блоб-поля в файл
+    # Convert binary data to proper format and write it on Hard Disk
+    with open(filename, 'w') as file:
+        file.write(data)
+        file.close()
 
 def mainMenu():     # Главное меню скрипта
     printALine()
@@ -67,7 +58,8 @@ def mainMenu():     # Главное меню скрипта
     print('0 : Exit script')
     print('1 : Check and add IP Ranges')
     print('2 : Work with Data from RouterScan') 
-    print('3 : Working with routers info (not ready yet)')
+    print('3 : Work with VPN Routers Data')
+    print('4 : (not ready yet)')
     printALine()
     return input()
 
@@ -89,6 +81,18 @@ def subMenu2():         # menu for Add New Data from RouterScan
     print('1 : Add New Data from RouterScan to online database')
     print('2 : Select Routers Data from Database for Local Processing')
     print('3 : Submit Routers Data into Online Database')
+    print('4 : ... < not ready yet >')
+    printALine()
+    return input()
+
+def subMenu3():         # menu for Add New Data from RouterScan
+    printALine()
+    print('=============== Work with VPN Routers Data =============')
+    printALine()
+    print('0 : Go to Main Menu')
+    print('1 : Get VPN Routers list for editing / selling')
+    print('2 : Submit edited VPN Roters info into online Database')
+    print('3 : ... < not ready yet >')
     print('4 : ... < not ready yet >')
     printALine()
     return input()
@@ -320,7 +324,8 @@ def getVpnRoutersRawDataFromDB():          # Получение из базы с
     result = cursor.fetchall()
     csvList = [['IP','Port','login:pass','Device','VPN Type','VPN login:pass','DDNS URL','DDNS RegData','Notes','isVPN','VPN error','NotAccessible','need Setup','AP/brige mode','Country']]
     for selectedRaw in result:
-        csvList.append(['="'+str(selectedRaw[0])+'"',selectedRaw[1],selectedRaw[2],selectedRaw[3],'','','','','','','','','','',selectedRaw[18]])
+        if selectedRaw[30] == 'null': selectedRaw[30] = ''
+        csvList.append(['="'+str(selectedRaw[0])+'"',selectedRaw[1],selectedRaw[2],selectedRaw[3],'','',selectedRaw[30],'','','','','','','',selectedRaw[18]])
     print('Outputting devices info into workList.csv file...')
     with open(outputCSV, "w", newline="") as file:
         writer = csv.writer(file, delimiter =';' )
@@ -396,6 +401,151 @@ def submitVpnRoutersDataToDB():           # запись в базу обраб�
         print("Add those files to /cfg/ folder in current dir and resubmit data of those IP's once more")
     return
 
+def getVPNRoutersListForEdit():         # получение из базы списка VPN для редактирования
+    
+    selectSQL = "SELECT * FROM VPNROUTERS WHERE "
+    outputVPNsFile = workDirecory + '/workListEdit.csv'
+
+    print()
+    printALine()
+    while True:
+        print()
+        print('Choice by IP or Geolocation')
+        print('Enter 1 if you want to choose VPNs by IPs or 2 if by some other criteria (country, state) or 3 for all VPNs in database')
+        ii = input()
+        if ii == '1':
+            print('Enter the filename with list of IPs (name only in case file in current working directory, otherwise input full path)')
+            try:
+                ipsFileList=open(input(),'r')
+            except:
+                print('error when opening metioned file. Start again ')
+                continue
+            i = 0
+            for line in ipsFileList:
+                if line.strip() != '': 
+                    if i == 0:
+                        selectSQL += "(IPADDR = '" + line.strip() + "' OR OLDIP = '" + line.strip() + "'"
+                    else: 
+                        selectSQL += " OR IPADDR = '" + line.strip() + "' OR OLDIP = '" + line.strip() + "'"
+                i += 1 
+            selectSQL += ")"
+            break
+        if ii == '2':
+            while True:
+                print('Enter two-letter country code')
+                cc = input()
+                if len(cc) > 2:
+                    print('Input error. You have to enter two letters only')
+                    continue
+                selectSQL += "(CountryCode = '" + cc + "'"
+                break                
+            while True:
+                print("Enter two-letter state code. In case you don't want select state just press Enter and all states will be selected")
+                rn = input()
+                if len(rn) == 0:
+                    break
+                if len(cc) > 2:
+                    print('Input error. You have to enter two letters only')
+                    continue
+                selectSQL += " AND Region = '" + rn + "'"
+                break    
+            selectSQL += ")"            
+            break
+        if ii == '3':
+            break
+        print('Input 1 or 2 or 3 only')
+    while True:
+        print()
+        print('Choice by Sold or not:')
+        print('Input 1 if you want to get unsold VPNs or input 2 if you want to het sold VPNs, or input 3 in case you want to get all VPNs')
+        ii = input()
+        if ii == '1':
+            if selectSQL[-1] == ' ':
+                selectSQL += "SOLD = 0"
+            else:
+                selectSQL += " AND SOLD = 0"
+            break
+        if ii == '2':
+            if selectSQL[-1] == ' ':
+                selectSQL += "SOLD = 1"
+            else:
+                selectSQL += " AND SOLD = 1"
+            break
+        if ii == '3':
+            break    
+        print('Input 1 or 2 or 3 only')
+    if selectSQL[-1] == ' ':
+        selectSQL = selectSQL[:-7]
+    print(selectSQL)
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    cursor.execute(selectSQL)
+    result = cursor.fetchall()
+    csvList = [['IP','Port','login:pass','Device','VPN Type','VPN login:pass','DDNS URL','DDNS RegData','Notes','CountryCode','Country','Region','RegionName','City','ISP','ASCode','ZIP','ipquality_score','getipintel_score','Sold','Byer','SellLink','OldIP','IsVPNDead','isWebLoginDead','RawID']]
+    for sRaw in result:
+        # sRaw[17] - blob with config, sRaw[23] - sells num
+        csvList.append(['="'+str(sRaw[0])+'"',sRaw[1],sRaw[2],sRaw[3],sRaw[4],sRaw[5],sRaw[6],sRaw[7],sRaw[8],sRaw[9],sRaw[10],sRaw[11],sRaw[12],sRaw[13],sRaw[14],sRaw[15],sRaw[16],sRaw[18],sRaw[19],sRaw[20],sRaw[21],sRaw[22],sRaw[24],sRaw[25],sRaw[26],sRaw[27]])
+        if sRaw[4] == 'OpenVPN':
+            if len(sRaw[17]) == 0:
+                print('OpenVPN IP ' + sRaw[0] + ' do not have a proper config in database')
+            writeTheFile(sRaw[17], workDirecory + '/cfg/' + sRaw[0] + '.ovpn')
+    print('Outputting devices info into workListEdit.csv file...')
+    with open(outputVPNsFile, "w", newline="") as file:
+        writer = csv.writer(file, delimiter =';' )
+        writer.writerows(csvList)
+    cursor.close()
+    dbRS.close()
+    print('Done! Check data in the file workListEdit.csv in current directory')
+    return
+
+def submitVpnRoutersEdited():      # загрузка в базу списка отредактированных VPN
+    csvFile = 'dataEditReady.csv'
+    print("Input Data will be taken from 'dataEditReady.csv' file from current directory. You can get an error in case this file is not exist")
+    print("Press Enter key to continue")
+    input()
+    
+    updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET IPADDR = %s, PORT = %s, LOGPASS = %s, DEVICE = %s, VPNTYPE = %s, VPNLOGPASS = %s, DDNSURL = %s, DDNSREGDATA = %s, NOTES = %s, CountryCode = %s, Country = %s, Region = %s, RegionName = %s, City = %s, ISP = %s, ASCode = %s, ZIP = %s, OVPNCONFIG = %s, ipqualityscore = %s, getipintel = %s, SOLD = %s, BYER = %s, SELLLINK = %s, OLDIP = %s, ISVPNDEAD = %s, ISWEBLOGINDEAD = %s WHERE ROWID = %s"
+    setOfMissedConfigFiles = []
+
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+
+    with open(csvFile, mode='r') as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=';')
+        for row in csv_reader:
+
+            config_data_file = '' 
+            if row["VPN Type"] == "OpenVPN":
+                try:
+                    print("reading config file /cfg/%s.ovpn" % row["IP"])
+                    config_data_file = open(workDirecory+"/cfg/"+row["IP"]+".ovpn", 'rb').read() # читаем файл конфига 
+                except:
+                    print("There happened an error reading file %s.ovpn" % row["IP"])
+                    print("please prepare correct config file, put it in /cfg/ directory (in current dir) and import %s IP once more" % row["IP"])
+                    setOfMissedConfigFiles.append(row["IP"])
+
+            updateArgs = (row["IP"], row["Port"], row["login:pass"], row["Device"], row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], row["CountryCode"], row["Country"], row["Region"], row["RegionName"], row["City"], row["ISP"], row["ASCode"], row["ZIP"], config_data_file, row["ipquality_score"], row["getipintel_score"], row["Sold"], row["Byer"], row["SellLink"], row["OldIP"], row["IsVPNDead"], row["isWebLoginDead"], row["RawID"])
+#            print(updateVPNROUTERSQuery % updateArgs)
+            cursor.execute(updateVPNROUTERSQuery, updateArgs)
+            print(row["IP"]+ " successfully updated in table VPNROUTERS")
+
+    if len(setOfMissedConfigFiles) > 0:
+        print("Some OpenVPN configuration files was not found in directory /cfg/ in current dir")
+        print("here the list of them:", setOfMissedConfigFiles)
+        print("Add those files to /cfg/ folder in current dir and resubmit data of those IP's once more")
+        print()
+    return
+
 def subSubMenu1execution():
     while True:
         sm1res = subSubMenu1()
@@ -433,6 +583,21 @@ def subMenu2execution():
             print('Here will be some more functions later...')
     return 
 
+def subMenu3execution():
+    while True:
+        sm3res = subMenu3()
+        if sm3res == '0':
+            break
+        elif sm3res == '1':
+            getVPNRoutersListForEdit()
+        elif sm3res == '2':
+            submitVpnRoutersEdited()
+        elif sm3res == '3':
+            print('Here will be some more functions later...')
+        elif sm3res == '4':
+            print('Here will be some more functions later...')
+    return 
+
 while True:
     mmres = mainMenu()
     if mmres == '0':
@@ -442,7 +607,7 @@ while True:
     elif mmres == '2':
         subMenu2execution()
     elif mmres == '3':
-        print('Working with routers info (not working yet)')
+        subMenu3execution()
     else:
         print('Wrong input')
 
