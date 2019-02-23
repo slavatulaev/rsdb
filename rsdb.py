@@ -9,6 +9,8 @@ import mysql.connector
 from netaddr import *
 import requests
 import json
+import datetime
+
 
 ########## vars ########
 
@@ -42,7 +44,18 @@ def getIPQualityScore(ipAddr):     # получение risk score с сайта
     return ipqualityscore
 
 def getGetIpIntel(ipAddr):          # получение fraud score с сайта www.getipintel.net
-    getipintel = -1
+    now = datetime.datetime.now()
+    nowStr = str(now).replace(' ','').replace(':','').replace('-','').replace('.','')
+    randomEmail = nowStr + '@mail.com'
+    checkerURL = 'http://check.getipintel.net/check.php?ip=' + ipAddr + '&contact=' + randomEmail + '&format=json'
+    print(checkerURL)
+    r = json.loads(requests.get(checkerURL).text)
+    print(r)
+    if r["status"] == 'success':
+        getipintel = r["result"][:6]
+        print("GetIPintel Score for IP %s detected and equal to %s" % (ipAddr, getipintel))
+    else:
+        getipintel = '-1'
     return getipintel
 
 def writeTheFile(data, filename):     #запись данных из блоб-поля в файл
@@ -60,6 +73,7 @@ def mainMenu():     # Главное меню скрипта
     print('2 : Work with Data from RouterScan') 
     print('3 : Work with VPN Routers Data')
     print('4 : (not ready yet)')
+    print('9 : Different service Tools')
     printALine()
     return input()
 
@@ -85,13 +99,25 @@ def subMenu2():         # menu for Add New Data from RouterScan
     printALine()
     return input()
 
-def subMenu3():         # menu for Add New Data from RouterScan
+def subMenu3():         # menu for Work with VPN Routers Data
     printALine()
     print('=============== Work with VPN Routers Data =============')
     printALine()
     print('0 : Go to Main Menu')
     print('1 : Get VPN Routers list for editing / selling')
     print('2 : Submit edited VPN Roters info into online Database')
+    print('3 : ... < not ready yet >')
+    print('4 : ... < not ready yet >')
+    printALine()
+    return input()
+
+def subMenu9():         # menu for Different service Tools
+    printALine()
+    print('=============== Different service Tools =============')
+    printALine()
+    print('0 : Go to Main Menu')
+    print('1 : Check Database for ipquality & getipintel score')
+    print('2 : ... < not ready yet >')
     print('3 : ... < not ready yet >')
     print('4 : ... < not ready yet >')
     printALine()
@@ -546,6 +572,39 @@ def submitVpnRoutersEdited():      # загрузка в базу списка �
         print()
     return
 
+def toolsMenuCheckScores():
+    print()
+    print('here we will check the Database if there any VPN without score (getipintel and ipqualityscore')
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    selectQuery = "SELECT ROWID, getipintel, ipqualityscore, IPADDR FROM VPNROUTERS WHERE getipintel = '-1' or ipqualityscore = '-1'"
+    updateQuery = "UPDATE VPNROUTERS SET ipqualityscore = %s, getipintel = %s WHERE ROWID = %s"
+    cursor.execute(selectQuery)
+    result = cursor.fetchall()
+    for sRaw in result:
+        gIPis = sRaw[1]
+        iPqs = sRaw[2]
+        if sRaw[1] == '-1':
+            gIPis = getGetIpIntel(sRaw[3])
+            if gIPis == '-1':
+                print()
+                print("your IP been banned by getipintel.net website. to continue you have to change thi IP. Exiting...")
+                break
+        if sRaw[2] == '-1':
+            iPqs = getIPQualityScore(sRaw[3])
+        updateArgs = (iPqs, gIPis, sRaw[0])
+        print(updateQuery % updateArgs)
+        cursor.execute(updateQuery, updateArgs)
+    cursor.close()
+    dbRS.close()
+    print()
+    return
+
 def subSubMenu1execution():
     while True:
         sm1res = subSubMenu1()
@@ -598,6 +657,21 @@ def subMenu3execution():
             print('Here will be some more functions later...')
     return 
 
+def subMenu9execution():
+    while True:
+        sm9res = subMenu9()
+        if sm9res == '0':
+            break
+        elif sm9res == '1':
+            toolsMenuCheckScores()
+        elif sm9res == '2':
+            print('Here will be some more functions later...')
+        elif sm9res == '3':
+            print('Here will be some more functions later...')
+        elif sm9res == '4':
+            print('Here will be some more functions later...')
+    return 
+
 while True:
     mmres = mainMenu()
     if mmres == '0':
@@ -608,6 +682,8 @@ while True:
         subMenu2execution()
     elif mmres == '3':
         subMenu3execution()
+    elif mmres == '9':
+        subMenu9execution()
     else:
         print('Wrong input')
 
