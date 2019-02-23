@@ -489,7 +489,7 @@ def getVPNRoutersListForEdit():         # получение из базы сп�
     csvList = [['IP','Port','login:pass','Device','VPN Type','VPN login:pass','DDNS URL','DDNS RegData','Notes','CountryCode','Country','Region','RegionName','City','ISP','ASCode','ZIP','ipquality_score','getipintel_score','Sold','Byer','SellLink','SellDate','OldIP','IsVPNDead','isWebLoginDead','RawID']]
     for sRaw in result:
         # sRaw[17] - blob with config, sRaw[23] - sells num
-        csvList.append(['="'+str(sRaw[0])+'"',sRaw[1],sRaw[2],sRaw[3],sRaw[4],sRaw[5],sRaw[6],sRaw[7],sRaw[8],sRaw[9],sRaw[10],sRaw[11],sRaw[12],sRaw[13],sRaw[14],sRaw[15],sRaw[16],sRaw[18],sRaw[19],sRaw[20],sRaw[21],sRaw[22],sRaw[23],sRaw[25],sRaw[26],sRaw[28],sRaw[28]])
+        csvList.append(['="'+str(sRaw[0])+'"',sRaw[1],sRaw[2],sRaw[3],sRaw[4],sRaw[5],sRaw[6],sRaw[7],sRaw[8],sRaw[9],sRaw[10],sRaw[11],sRaw[12],sRaw[13],sRaw[14],sRaw[15],sRaw[16],sRaw[18],sRaw[19],sRaw[20],sRaw[21],sRaw[22],sRaw[23],sRaw[25],sRaw[26],sRaw[27],sRaw[28]])
         if sRaw[4] == 'OpenVPN':
             if len(sRaw[17]) == 0:
                 print('OpenVPN IP ' + sRaw[0] + ' do not have a proper config in database')
