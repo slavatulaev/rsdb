@@ -486,10 +486,10 @@ def getVPNRoutersListForEdit():         # получение из базы сп�
     cursor = dbRS.cursor()
     cursor.execute(selectSQL)
     result = cursor.fetchall()
-    csvList = [['IP','Port','login:pass','Device','VPN Type','VPN login:pass','DDNS URL','DDNS RegData','Notes','CountryCode','Country','Region','RegionName','City','ISP','ASCode','ZIP','ipquality_score','getipintel_score','Sold','Byer','SellLink','OldIP','IsVPNDead','isWebLoginDead','RawID']]
+    csvList = [['IP','Port','login:pass','Device','VPN Type','VPN login:pass','DDNS URL','DDNS RegData','Notes','CountryCode','Country','Region','RegionName','City','ISP','ASCode','ZIP','ipquality_score','getipintel_score','Sold','Byer','SellLink','SellDate','OldIP','IsVPNDead','isWebLoginDead','RawID']]
     for sRaw in result:
         # sRaw[17] - blob with config, sRaw[23] - sells num
-        csvList.append(['="'+str(sRaw[0])+'"',sRaw[1],sRaw[2],sRaw[3],sRaw[4],sRaw[5],sRaw[6],sRaw[7],sRaw[8],sRaw[9],sRaw[10],sRaw[11],sRaw[12],sRaw[13],sRaw[14],sRaw[15],sRaw[16],sRaw[18],sRaw[19],sRaw[20],sRaw[21],sRaw[22],sRaw[24],sRaw[25],sRaw[26],sRaw[27]])
+        csvList.append(['="'+str(sRaw[0])+'"',sRaw[1],sRaw[2],sRaw[3],sRaw[4],sRaw[5],sRaw[6],sRaw[7],sRaw[8],sRaw[9],sRaw[10],sRaw[11],sRaw[12],sRaw[13],sRaw[14],sRaw[15],sRaw[16],sRaw[18],sRaw[19],sRaw[20],sRaw[21],sRaw[22],sRaw[23],sRaw[25],sRaw[26],sRaw[28],sRaw[28]])
         if sRaw[4] == 'OpenVPN':
             if len(sRaw[17]) == 0:
                 print('OpenVPN IP ' + sRaw[0] + ' do not have a proper config in database')
@@ -510,7 +510,7 @@ def submitVpnRoutersEdited():      # загрузка в базу списка �
     print("Press Enter key to continue")
     input()
     
-    updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET IPADDR = %s, PORT = %s, LOGPASS = %s, DEVICE = %s, VPNTYPE = %s, VPNLOGPASS = %s, DDNSURL = %s, DDNSREGDATA = %s, NOTES = %s, CountryCode = %s, Country = %s, Region = %s, RegionName = %s, City = %s, ISP = %s, ASCode = %s, ZIP = %s, OVPNCONFIG = %s, ipqualityscore = %s, getipintel = %s, SOLD = %s, BYER = %s, SELLLINK = %s, OLDIP = %s, ISVPNDEAD = %s, ISWEBLOGINDEAD = %s WHERE ROWID = %s"
+    updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET IPADDR = %s, PORT = %s, LOGPASS = %s, DEVICE = %s, VPNTYPE = %s, VPNLOGPASS = %s, DDNSURL = %s, DDNSREGDATA = %s, NOTES = %s, CountryCode = %s, Country = %s, Region = %s, RegionName = %s, City = %s, ISP = %s, ASCode = %s, ZIP = %s, OVPNCONFIG = %s, ipqualityscore = %s, getipintel = %s, SOLD = %s, BYER = %s, SELLLINK = %s, SELLDATE = %s, OLDIP = %s, ISVPNDEAD = %s, ISWEBLOGINDEAD = %s WHERE ROWID = %s"
     setOfMissedConfigFiles = []
 
     print('Connecting to online DataBase.... Please Wait....')
@@ -535,7 +535,7 @@ def submitVpnRoutersEdited():      # загрузка в базу списка �
                     print("please prepare correct config file, put it in /cfg/ directory (in current dir) and import %s IP once more" % row["IP"])
                     setOfMissedConfigFiles.append(row["IP"])
 
-            updateArgs = (row["IP"], row["Port"], row["login:pass"], row["Device"], row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], row["CountryCode"], row["Country"], row["Region"], row["RegionName"], row["City"], row["ISP"], row["ASCode"], row["ZIP"], config_data_file, row["ipquality_score"], row["getipintel_score"], row["Sold"], row["Byer"], row["SellLink"], row["OldIP"], row["IsVPNDead"], row["isWebLoginDead"], row["RawID"])
+            updateArgs = (row["IP"], row["Port"], row["login:pass"], row["Device"], row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], row["CountryCode"], row["Country"], row["Region"], row["RegionName"], row["City"], row["ISP"], row["ASCode"], row["ZIP"], config_data_file, row["ipquality_score"], row["getipintel_score"], row["Sold"], row["Byer"], row["SellLink"], row["SellDate"], row["OldIP"], row["IsVPNDead"], row["isWebLoginDead"], row["RawID"])
             cursor.execute(updateVPNROUTERSQuery, updateArgs)
             print(row["IP"]+ " successfully updated in table VPNROUTERS")
 
