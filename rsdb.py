@@ -494,7 +494,7 @@ def getVPNRoutersListForEdit():         # получение из базы сп�
             if len(sRaw[17]) == 0:
                 print('OpenVPN IP ' + sRaw[0] + ' do not have a proper config in database')
             else:
-                writeTheFile(sRaw[17], workDirecory + '/cfg/' + sRaw[0] + '.ovpn')
+                writeTheFile(str(sRaw[17]), workDirecory + '/cfg/' + sRaw[0] + '.ovpn')
     print('Outputting devices info into workListEdit.csv file...')
     with open(outputVPNsFile, "w", newline="") as file:
         writer = csv.writer(file, delimiter =';' )
