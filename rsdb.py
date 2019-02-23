@@ -493,7 +493,8 @@ def getVPNRoutersListForEdit():         # получение из базы сп�
         if sRaw[4] == 'OpenVPN':
             if len(sRaw[17]) == 0:
                 print('OpenVPN IP ' + sRaw[0] + ' do not have a proper config in database')
-            writeTheFile(sRaw[17], workDirecory + '/cfg/' + sRaw[0] + '.ovpn')
+            else:
+                writeTheFile(sRaw[17], workDirecory + '/cfg/' + sRaw[0] + '.ovpn')
     print('Outputting devices info into workListEdit.csv file...')
     with open(outputVPNsFile, "w", newline="") as file:
         writer = csv.writer(file, delimiter =';' )
@@ -535,7 +536,6 @@ def submitVpnRoutersEdited():      # загрузка в базу списка �
                     setOfMissedConfigFiles.append(row["IP"])
 
             updateArgs = (row["IP"], row["Port"], row["login:pass"], row["Device"], row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], row["CountryCode"], row["Country"], row["Region"], row["RegionName"], row["City"], row["ISP"], row["ASCode"], row["ZIP"], config_data_file, row["ipquality_score"], row["getipintel_score"], row["Sold"], row["Byer"], row["SellLink"], row["OldIP"], row["IsVPNDead"], row["isWebLoginDead"], row["RawID"])
-#            print(updateVPNROUTERSQuery % updateArgs)
             cursor.execute(updateVPNROUTERSQuery, updateArgs)
             print(row["IP"]+ " successfully updated in table VPNROUTERS")
 
