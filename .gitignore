@@ -103,6 +103,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# myingnoredirs
+# myingnoredirs @ files
 backup/
 .gitignore
