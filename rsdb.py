@@ -72,7 +72,8 @@ def mainMenu():     # Главное меню скрипта
     print('1 : Check and add IP Ranges')
     print('2 : Work with Data from RouterScan') 
     print('3 : Work with VPN Routers Data')
-    print('4 : (not ready yet)')
+    print('4 : Sells of VPN Routers')
+    print('5 : (not ready yet)')
     print('9 : Different service Tools')
     printALine()
     return input()
@@ -106,6 +107,18 @@ def subMenu3():         # menu for Work with VPN Routers Data
     print('0 : Go to Main Menu')
     print('1 : Get VPN Routers list for editing / selling')
     print('2 : Submit edited VPN Roters info into online Database')
+    print('3 : ... < not ready yet >')
+    print('4 : ... < not ready yet >')
+    printALine()
+    return input()
+
+def subMenu4():         # menu for Work with VPN Routers Data
+    printALine()
+    print('=============== Sells of VPN Routers =============')
+    printALine()
+    print('0 : Go to Main Menu')
+    print('1 : ... < not ready yet >')
+    print('2 : Submit list of Sells from file')
     print('3 : ... < not ready yet >')
     print('4 : ... < not ready yet >')
     printALine()
@@ -572,7 +585,86 @@ def submitVpnRoutersEdited():      # загрузка в базу списка �
         print()
     return
 
-def toolsMenuCheckScores():
+def submitSellsFromFile():
+    printALine()
+    print()
+    print('Submit list of last sells from localfile sells.csv (IP;BYER_TG_ID;DATE)')
+    print('in case of sell to vpnshop in the field BYER_TG_ID should be "SHOP" in all other cases telegram ID if customer')
+    print('date in field DATE should be in "YY.MM.DD" format')
+    print()
+    sellsFile = 'sells.csv'
+    errorIPs = []
+
+    #прочитать содержимое .csv в список
+    sellsList = []
+    with open(sellsFile, encoding="ISO-8859-1") as csvfile:
+        readCSV = csv.reader(csvfile, delimiter=';')
+        for row in readCSV:
+            if (row[0] == 'IP') or (row[0] == ''): continue
+            sellsList.append(row)
+    csvfile.close()
+    customersList = []
+    
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+
+    selectCUSTOMERSQueryTemplate = 'SELECT * FROM CUSTOMERS WHERE TelegramID = '
+    inserCUSTOMERSQueryTemplate = 'INSERT INTO CUSTOMERS (TelegramID) VALUES ('
+    selectVPNROUTERSQueryTemplate = "SELECT IPADDR, ROWID, SOLD, BYER, SELLDATE, SELLSNUM FROM VPNROUTERS WHERE IPADDR = '%s'"
+    # проверяем наличие покупателей в списке в базе
+    print('проверяем наличие покупателей в списке в базе...')
+    for sell in sellsList:
+        if sell[1] not in customersList:
+            customersList.append(sell[1])
+    for customer in customersList:
+        selectCUSTOMERSQuery = selectCUSTOMERSQueryTemplate + '"' + customer + '"'
+        print(selectCUSTOMERSQuery)
+        cursor.execute(selectCUSTOMERSQuery)
+        if len(cursor.fetchall()) == 0:
+            print(customer + ' - такой клиент в базе данных не найден')
+            print('добавляем в базу клиента ' + customer)
+            inserCUSTOMERSQuery = inserCUSTOMERSQueryTemplate + '"' + customer + '")'
+            print(inserCUSTOMERSQuery)
+            cursor.execute(inserCUSTOMERSQuery)
+            dbRS.commit()
+    # добавляем продажи по одной
+    print('начинаем добавлять в базу продажи по одной...')
+    for sell in sellsList:
+        print(sell)
+        selectCUSTOMERSQuery = selectCUSTOMERSQueryTemplate + '"' + sell[1] + '"'
+        print(selectCUSTOMERSQuery)
+        cursor.execute(selectCUSTOMERSQuery)
+        result = cursor.fetchone()
+        print(result)
+        customerID = result[0] # получили ID клиента
+
+        selectVPNROUTERSQuery = selectVPNROUTERSQueryTemplate % str(sell[0])
+        print(selectVPNROUTERSQuery)
+        cursor.execute(selectVPNROUTERSQuery)
+        result = cursor.fetchone()
+        if result == None:
+            print('IP %s не найдет в базе VPN' % sell[0])
+            errorIPs.append(sell[0])
+            continue
+        print(result)
+        vpnID = result[1] # Получили ID впн с указанным IP
+
+        if result[2] == 0: # если никогда не был продан этот IP
+            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET SOLD = %s, BYER = %s, SELLDATE = %s, SELLSNUM = %s WHERE IPADDR = %s"
+        else: # если уже продавался то пишем в отдельную табличку
+            insertSIDESELLSQuery = ''
+
+
+    printALine()
+    print()
+    return
+
+def toolsMenuCheckScores():        # проверка скора по getipintel и ipqualityscore - из за ограничений getipintel проверяются только 6 адресов с одного IP дальше бан навечно и надо ставить новый впн или прокси
     print()
     print('here we will check the Database if there any VPN without score (getipintel and ipqualityscore')
     print('Connecting to online DataBase.... Please Wait....')
@@ -657,6 +749,21 @@ def subMenu3execution():
             print('Here will be some more functions later...')
     return 
 
+def subMenu4execution():
+    while True:
+        sm4res = subMenu4()
+        if sm4res == '0':
+            break
+        elif sm4res == '1':
+            print('Here will be some more functions later...')
+        elif sm4res == '2':
+            submitSellsFromFile()
+        elif sm4res == '3':
+            print('Here will be some more functions later...')
+        elif sm4res == '4':
+            print('Here will be some more functions later...')
+    return 
+
 def subMenu9execution():
     while True:
         sm9res = subMenu9()
@@ -682,6 +789,8 @@ while True:
         subMenu2execution()
     elif mmres == '3':
         subMenu3execution()
+    elif mmres == '4':
+        subMenu4execution()
     elif mmres == '9':
         subMenu9execution()
     else:
