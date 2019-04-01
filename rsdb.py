@@ -117,7 +117,7 @@ def subMenu4():         # menu for Work with VPN Routers Data
     print('=============== Sells of VPN Routers =============')
     printALine()
     print('0 : Go to Main Menu')
-    print('1 : ... < not ready yet >')
+    print('1 : Get a list of VPNs for selling')
     print('2 : Submit list of Sells from file')
     print('3 : ... < not ready yet >')
     print('4 : ... < not ready yet >')
@@ -543,6 +543,126 @@ def getVPNRoutersListForEdit():         # получение из базы сп�
     print('Done! Check data in the file workListEdit.csv in current directory')
     return
 
+def createList4Sells():                  # выборка с базы данных для формирования списка продаж
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+
+    print()
+
+    print('Here we go...')
+    print("Let's choose what you need today...")
+    print("Start with country choose - input 2-letter country code or 'All' for all countries")
+    countryCode = input()
+    if (len(countryCode) < 2) or ((len(countryCode)) < 2 and (countryCode != 'All')):
+        print('Wrong Input, dude... going back to menu...')
+        return
+    if countryCode == 'All':
+        countryCode = ''
+    if countryCode != '':
+        print()
+        print("Now let's choose a state/region - input 2-letter state/region code or 'All' for all regions/states")
+        regionCode = input()
+        if (len(regionCode) < 2) or ((len(regionCode)) < 2 and (regionCode != 'All')):
+            print('Wrong Input, dude... going back to menu...')
+            return
+        if regionCode == 'All':
+            regionCode = ''
+    else:
+        regionCode = ''
+    print()
+    print("Greate job, dude!...")
+    print("Now lt's choose type of VPN")
+    typeOfVpn = input('Input "PPTP" or "OpenVPN" or "Both" only: ')
+    if typeOfVpn not in ("PPTP","OpenVPN","Both"):
+        print('Wrong Input, dude... have to input "PPTP" or "OpenVPN" or "Both" only - going back to menu...')
+        return
+    if typeOfVpn == 'Both':
+        typeOfVpn = ''
+    print()
+    print("Wow, you're input monster, mate... go ahead...")
+    print("Now let's choose if you need a VPN that never been sold, or never been sold to exact customer")
+    print("Input 1 if you want a list of VPNs that been never sold before")
+    print("or")
+    print("Input 2 if you want a list of VPNs that been never sold to particular customer")
+    soldOrNot = input("1 or 2 only: ")
+    if soldOrNot not in ('1','2'):
+        print("You are unlucky today. Read more carefully and nex time may be you'll reach your goal.")
+        print('Now going back to menu...')
+        return
+    if soldOrNot == '2':
+        customerForChoice = input('Input customer telegram ID (or "SHOP" for shop sells), and you will get alist of VPN that never been sold to him.: ')
+            # тут можно поставить проверку на существование такого кастомера в базе
+        selectCUSTOMERSQuery = "SELECT TelegramID from CUSTOMERS WHERE TelegramID = '" + customerForChoice + "'"
+        cursor.execute(selectCUSTOMERSQuery)
+        if cursor.fetchone() == None:
+            print("There is no customer with telegramID %s in database" % customerForChoice)
+            print('So going back to menu...')
+            return
+    print()
+    print("Yeah, mister champion... next level...")
+    print("And finally input the requered getipintel score")
+    print("Keep in mind that some records in our database can still contain '-1' as score value, what means it been not tested yet")
+    print("So input the maximum desired score value from 0 to 1 (ex. 0.25) or -1 for any value including those that still been not tested")
+    getipintelScore = float(input())
+    if (int(getipintelScore*100) > 100) or ((int(getipintelScore*100) < 0) and (int(getipintelScore) != -1)):
+        print("Wrong input... getipintel score value can't be more than 1 and less than 0")
+        print('So going back to menu...')
+        return
+    # теперь давайте сделаем запрос с выборкой по указаным параметрам
+    selectVPNROUTERSQuery = "SELECT * FROM VPNROUTERS WHERE ISVPNDEAD = 0"
+    selectQueryParamsList = []
+    if countryCode != '':
+        selectQueryParamsList.append("CountryCode = '" + countryCode + "'")
+    if regionCode != '':
+        selectQueryParamsList.append("Region = '" + regionCode + "'")
+    if typeOfVpn != '':
+        selectQueryParamsList.append("VPNTYPE = '" + typeOfVpn + "'")
+    if soldOrNot == '1':
+        selectQueryParamsList.append("SOLD = 0")
+    elif soldOrNot == '2':
+        selectQueryParamsList.append("BYER != '" + customerForChoice + "'")
+    if int(getipintelScore) != -1:
+        selectQueryParamsList.append("getipintel < '" + str(float(getipintelScore))[:4] + "'")
+    for line in selectQueryParamsList:
+        selectVPNROUTERSQuery += " AND " + line
+    print(selectVPNROUTERSQuery)
+    cursor.execute(selectVPNROUTERSQuery)
+    result = cursor.fetchall()
+    print('Checking deeper in seells...')
+    newres = []
+    if soldOrNot == '2':
+        for selectedRow in result:
+            selectSIDESELLSQUery = "SELECT * FROM SIDESELLS INNER JOIN CUSTOMERS ON SIDESELLS.CUSTID = CUSTOMERS.ID WHERE VPNID = %s AND TelegramID = '%s'" % (selectedRow[28],customerForChoice)
+            print(selectSIDESELLSQUery)
+            cursor.execute(selectSIDESELLSQUery)
+            if cursor.fetchone() == None:
+                newres.append(selectedRow)
+    else:
+        newres = result
+
+    outputCSV = 'list4Sell.csv'
+
+    print()
+    print("Prining results : ")
+    csvList = [['IP','Port','login:pass','Device','VPN Type','VPN login:pass','DDNS URL','DDNS RegData','Notes','Country','State','City','ipqualityscore','getipintel']]
+    for selectedRaw in newres:
+        csvList.append(['="'+str(selectedRaw[0])+'"',selectedRaw[1],selectedRaw[2],selectedRaw[3],selectedRaw[4],selectedRaw[5],selectedRaw[6],selectedRaw[7],selectedRaw[8],selectedRaw[9],selectedRaw[11],selectedRaw[13],selectedRaw[18],str(selectedRaw[19])])
+    print('Outputting devices info into workList.csv file...')
+    with open(outputCSV, "w", newline="") as file:
+        writer = csv.writer(file, delimiter =';' )
+        writer.writerows(csvList)
+    cursor.close()
+    dbRS.close()
+    print('Done! Check data in the file list4Sell.csv in current directory')
+
+    print()
+    return
+
 def submitVpnRoutersEdited():      # загрузка в базу списка отредактированных VPN
     csvFile = 'dataEditReady.csv'
     print("Input Data will be taken from 'dataEditReady.csv' file from current directory. You can get an error in case this file is not exist")
@@ -585,7 +705,7 @@ def submitVpnRoutersEdited():      # загрузка в базу списка �
         print()
     return
 
-def submitSellsFromFile():
+def submitSellsFromFile():         # запись в базу только продаж sells.csv (IP;BYER_TG_ID;DATE)
     printALine()
     print()
     print('Submit list of last sells from localfile sells.csv (IP;BYER_TG_ID;DATE)')
@@ -594,6 +714,7 @@ def submitSellsFromFile():
     print()
     sellsFile = 'sells.csv'
     errorIPs = []
+    doubleSellsList = []
 
     #прочитать содержимое .csv в список
     sellsList = []
@@ -654,12 +775,52 @@ def submitSellsFromFile():
         print(result)
         vpnID = result[1] # Получили ID впн с указанным IP
 
-        if result[2] == 0: # если никогда не был продан этот IP
-            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET SOLD = %s, BYER = %s, SELLDATE = %s, SELLSNUM = %s WHERE IPADDR = %s"
-        else: # если уже продавался то пишем в отдельную табличку
-            insertSIDESELLSQuery = ''
-
-
+        if result[2] == 0: # если никогда не был продан этот IP пишем в основную таблицу
+            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET SOLD = %s, BYER = %s, SELLDATE = %s, SELLSNUM = %s WHERE ROWID = %s" 
+            updateVPNROUTERSargs = ('1',sell[1],sell[2],'1',vpnID)
+            print(updateVPNROUTERSQuery % updateVPNROUTERSargs)
+            cursor.execute(updateVPNROUTERSQuery, updateVPNROUTERSargs)
+        else:           # если уже продавался то пишем в отдельную табличку а в VPNROUTERS прибавляем 1 к продажам / 
+                        # тут же сначала мы проверим факт того что этот айпи не продавался этому же самому клиенту customerID , sell[1]
+            if sell[1] == result[3]:
+                printALine()
+                print()
+                print("!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
+                print("VPN with IP " + sell[0] + " been ALREDY SOLD to " + result[3] + " at " +  str(result[4]))
+                print("so we cant sell it him again...")
+                print()
+                doubleSellsList.append(sell[0])
+                continue
+            cursor.execute('SELECT * FROM SIDESELLS WHERE VPNID = ' + str(vpnID) + ' AND CUSTID = ' + str(customerID))
+            if cursor.fetchone() != None:
+                printALine()
+                print()
+                print("!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
+                print("VPN with IP " + sell[0] + " been ALREDY SOLD to " + sell[1] + " somedays ago")
+                print("so we cant sell it him again...")
+                print()
+                doubleSellsList.append(sell[0])
+                continue
+            insertSIDESELLSQuery = 'INSERT INTO SIDESELLS (VPNID, CUSTID, DATE) VALUES (%s, %s, %s)'
+            insertSIDESELLSargs = (vpnID, customerID, sell[2])
+            print(insertSIDESELLSQuery % insertSIDESELLSargs)
+            cursor.execute(insertSIDESELLSQuery, insertSIDESELLSargs)
+            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET SELLSNUM = %s WHERE ROWID = %s" % (result[5]+1, vpnID)
+            print('updating SELLSNUM field in VPNROUTERS table')
+            print(updateVPNROUTERSQuery)
+            cursor.execute(updateVPNROUTERSQuery)
+        dbRS.commit()
+    
+    if len(errorIPs) > 0:
+        printALine()
+        print()
+        print("Приведенные ниже айпи не найдены в базе в таблице VPNROUTERS, а следовательно не могут быть проданы")
+        print(errorIPs)
+    if len(doubleSellsList) > 0:
+        printALine()
+        print()
+        print("Приведенные ниже айпи были уже ранее проданы тем же самым клиентам - продажа одному клиенту одного и того же айпи дважды невозможна")
+        print(doubleSellsList)
     printALine()
     print()
     return
@@ -755,7 +916,7 @@ def subMenu4execution():
         if sm4res == '0':
             break
         elif sm4res == '1':
-            print('Here will be some more functions later...')
+            createList4Sells()
         elif sm4res == '2':
             submitSellsFromFile()
         elif sm4res == '3':
