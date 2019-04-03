@@ -61,8 +61,20 @@ def getGetIpIntel(ipAddr):          # получение fraud score с сайт
 def writeTheFile(data, filename):     #запись данных из блоб-поля в файл
     # Convert binary data to proper format and write it on Hard Disk
     with open(filename, 'w') as file:
-        file.write(data)
+        file.write(str(data))
         file.close()
+    return
+
+def checkOpenVpnConfigDataText(data):
+#    print(data[0:20])
+#    if data[0:2] == "b'c":
+#        data.replace("b'", "")
+#        print('new is' + data[0:20])
+#        dataLs = data.split('\\n')
+#        data = ''
+#        for l in dataLs:
+#            data += l + '\n'
+    return data
 
 def mainMenu():     # Главное меню скрипта
     printALine()
@@ -130,7 +142,7 @@ def subMenu9():         # menu for Different service Tools
     printALine()
     print('0 : Go to Main Menu')
     print('1 : Check Database for ipquality & getipintel score')
-    print('2 : ... < not ready yet >')
+    print('2 : Check OpenVPN configs stored in database')
     print('3 : ... < not ready yet >')
     print('4 : ... < not ready yet >')
     printALine()
@@ -533,7 +545,7 @@ def getVPNRoutersListForEdit():         # получение из базы сп�
             if len(sRaw[17]) == 0:
                 print('OpenVPN IP ' + sRaw[0] + ' do not have a proper config in database')
             else:
-                writeTheFile(str(sRaw[17]), workDirecory + '/cfg/' + sRaw[0] + '.ovpn')
+                writeTheFile(sRaw[17], workDirecory + '/cfg/' + sRaw[0] + '.ovpn')
     print('Outputting devices info into workListEdit.csv file...')
     with open(outputVPNsFile, "w", newline="") as file:
         writer = csv.writer(file, delimiter =';' )
@@ -688,7 +700,7 @@ def submitVpnRoutersEdited():      # загрузка в базу списка �
             if row["VPN Type"] == "OpenVPN":
                 try:
                     print("reading config file /cfg/%s.ovpn" % row["IP"])
-                    config_data_file = open(workDirecory+"/cfg/"+row["IP"]+".ovpn", 'rb').read() # читаем файл конфига 
+                    config_data_file = open(workDirecory+"/cfg/"+row["IP"]+".ovpn", 'r').read() # читаем файл конфига 
                 except:
                     print("There happened an error reading file %s.ovpn" % row["IP"])
                     print("please prepare correct config file, put it in /cfg/ directory (in current dir) and import %s IP once more" % row["IP"])
@@ -697,6 +709,7 @@ def submitVpnRoutersEdited():      # загрузка в базу списка �
             updateArgs = (row["IP"], row["Port"], row["login:pass"], row["Device"], row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], row["CountryCode"], row["Country"], row["Region"], row["RegionName"], row["City"], row["ISP"], row["ASCode"], row["ZIP"], config_data_file, row["ipquality_score"], row["getipintel_score"], row["Sold"], row["Byer"], row["SellLink"], row["SellDate"], row["OldIP"], row["IsVPNDead"], row["isWebLoginDead"], row["RawID"])
             cursor.execute(updateVPNROUTERSQuery, updateArgs)
             print(row["IP"]+ " successfully updated in table VPNROUTERS")
+            dbRS.commit()
 
     if len(setOfMissedConfigFiles) > 0:
         print("Some OpenVPN configuration files was not found in directory /cfg/ in current dir")
@@ -853,9 +866,81 @@ def toolsMenuCheckScores():        # проверка скора по getipintel
         updateArgs = (iPqs, gIPis, sRaw[0])
         print(updateQuery % updateArgs)
         cursor.execute(updateQuery, updateArgs)
+        dbRS.commit()
     cursor.close()
     dbRS.close()
     print()
+    return
+
+def checkOpenvpnConfigs():
+    print()
+    print('here we will check the Database if there any wrong openVPN configs stored...')
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+
+    selectVPNROUTERSQuery = "SELECT OVPNCONFIG, ROWID, IPADDR FROM VPNROUTERS WHERE VPNTYPE = 'OpenVPN'"
+    cursor.execute(selectVPNROUTERSQuery)
+    result = cursor.fetchall()
+    print("Got the list from database - starting to process it...")
+    for row in result:
+        if row[0][-7:].find("\n\\'\"'\n\n") != -1:
+            newcfg = row[0][:-6]
+            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE ROWID = %s"
+            updateArgs = (newcfg,str(row[1]))
+            cursor.execute(updateVPNROUTERSQuery,updateArgs)
+            dbRS.commit()
+            print('Config for ' + row[2] + ' fixed')
+            continue
+
+        if row[0][-3:].find("\n'\n") != -1:
+            newcfg = row[0][:-2]
+            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE ROWID = %s"
+            updateArgs = (newcfg,str(row[1]))
+            cursor.execute(updateVPNROUTERSQuery,updateArgs)
+            dbRS.commit()
+            print('Config for ' + row[2] + ' fixed')
+            continue
+        if row[0][0] == "'":
+            print(row[0])
+            newcfg = row[0][1:]
+            newcfg = newcfg.replace('\\\\\\','')
+#            print(newcfg)
+            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE ROWID = %s"
+            updateArgs = (newcfg,str(row[1]))
+            cursor.execute(updateVPNROUTERSQuery,updateArgs)
+            dbRS.commit()
+            print('Config for ' + row[2] + ' fixed')
+            continue
+        if row[0][0] == 'b':
+            print('processing row ID ' + row[1])
+            if row[0][0:2] == "b'":
+                newcfg = row[0][2:]
+                newcfgList = newcfg.split('\\n')
+            if row[0][0:3] == 'b"b':
+                newcfg = row[0][4:]
+                newcfgList = newcfg.split('\\\\n')
+            newcfg = ''
+            for l in newcfgList:
+                newcfg += l + '\n'
+#            print(newcfg)
+#            input("this is new config")
+            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE ROWID = %s"
+            updateArgs = (newcfg,str(row[1]))
+            cursor.execute(updateVPNROUTERSQuery,updateArgs)
+            dbRS.commit()
+            print('Config for ' + row[2] + ' fixed')
+
+    cursor.close()
+    dbRS.close()
+    print()
+    printALine()
+    print('Check finished!')
+
     return
 
 def subSubMenu1execution():
@@ -933,7 +1018,7 @@ def subMenu9execution():
         elif sm9res == '1':
             toolsMenuCheckScores()
         elif sm9res == '2':
-            print('Here will be some more functions later...')
+            checkOpenvpnConfigs()
         elif sm9res == '3':
             print('Here will be some more functions later...')
         elif sm9res == '4':
