@@ -65,17 +65,6 @@ def writeTheFile(data, filename):     #запись данных из блоб-�
         file.close()
     return
 
-def checkOpenVpnConfigDataText(data):
-#    print(data[0:20])
-#    if data[0:2] == "b'c":
-#        data.replace("b'", "")
-#        print('new is' + data[0:20])
-#        dataLs = data.split('\\n')
-#        data = ''
-#        for l in dataLs:
-#            data += l + '\n'
-    return data
-
 def mainMenu():     # Главное меню скрипта
     printALine()
     print('==================== Main Menu ===================')
@@ -872,7 +861,7 @@ def toolsMenuCheckScores():        # проверка скора по getipintel
     print()
     return
 
-def checkOpenvpnConfigs():
+def checkOpenvpnConfigs():         # проверк состояния конфигов опенвп в базе
     print()
     print('here we will check the Database if there any wrong openVPN configs stored...')
     print('Connecting to online DataBase.... Please Wait....')
@@ -909,7 +898,7 @@ def checkOpenvpnConfigs():
             print(row[0])
             newcfg = row[0][1:]
             newcfg = newcfg.replace('\\\\\\','')
-#            print(newcfg)
+            #print(newcfg)
             updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE ROWID = %s"
             updateArgs = (newcfg,str(row[1]))
             cursor.execute(updateVPNROUTERSQuery,updateArgs)
@@ -927,8 +916,8 @@ def checkOpenvpnConfigs():
             newcfg = ''
             for l in newcfgList:
                 newcfg += l + '\n'
-#            print(newcfg)
-#            input("this is new config")
+            #print(newcfg)
+            #input("this is new config")
             updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE ROWID = %s"
             updateArgs = (newcfg,str(row[1]))
             cursor.execute(updateVPNROUTERSQuery,updateArgs)
