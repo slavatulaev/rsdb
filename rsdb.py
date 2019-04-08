@@ -821,8 +821,13 @@ def submitSellsFromFile():         # запись в базу только пр�
         dataFile = open(path + '/' + sell[1] + '.txt','a')
         dataFile.write(sell[0] + ' | ' + result[6] + ' | ' + result[7] + ' ' + result[8] + ' | ' + result[9] + '\n')
         if result[9] == 'OpenVPN':
+            if not os.path.exists('./cfg/' + sell[0] + '.ovpn'):
+                print('config file for %s not exist - downloading from database...' % sell[0])
+                cursor.execute('SELECT OVPNCONFIG FROM VPNROUTERS WHERE ROWID = ' + str(vpnID))
+                result = cursor.fetchone()
+                writeTheFile(result[0], workDirecory + '/cfg/' + sell[0] + '.ovpn')
             try:
-                print('executing command: ' + 'cp ./cfg/' + sell[0] + '.ovpn ' + path + '/' + sell[0] + '.ovpn')
+            #    print('executing command: ' + 'cp ./cfg/' + sell[0] + '.ovpn ' + path + '/' + sell[0] + '.ovpn')
                 os.popen('cp ./cfg/' + sell[0] + '.ovpn ' + path + '/' + sell[0] + '.ovpn')
             except:
                 print('File with config for ' + sell[0] + 'cant be copied to ' + path + '/' + sell[0] + '.ovpn')
