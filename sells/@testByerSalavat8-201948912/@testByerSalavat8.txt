@@ -1,2 +1,0 @@
-96.75.188.243 | vpnrouter:vpnrouter | US NJ | OpenVPN
-23.24.64.241 | vpnrouter:vpnrouter | US  | OpenVPN
