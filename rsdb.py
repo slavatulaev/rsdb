@@ -714,6 +714,10 @@ def submitSellsFromFile():         # запись в базу только пр�
     print('in case of sell to vpnshop in the field BYER_TG_ID should be "SHOP" in all other cases telegram ID if customer')
     print('date in field DATE should be in "YY.MM.DD" format')
     print()
+    #input('Should we prepare data for this sell locally or put it to ft')
+    now = datetime.datetime.now()
+    datetimesalt = str(now.year) + str(now.month) + str(now.day) + str(now.hour) + str(now.minute) 
+    sellsDir = './sells/'
     sellsFile = 'sells.csv'
     errorIPs = []
     doubleSellsList = []
@@ -738,7 +742,7 @@ def submitSellsFromFile():         # запись в базу только пр�
 
     selectCUSTOMERSQueryTemplate = 'SELECT * FROM CUSTOMERS WHERE TelegramID = '
     inserCUSTOMERSQueryTemplate = 'INSERT INTO CUSTOMERS (TelegramID) VALUES ('
-    selectVPNROUTERSQueryTemplate = "SELECT IPADDR, ROWID, SOLD, BYER, SELLDATE, SELLSNUM FROM VPNROUTERS WHERE IPADDR = '%s'"
+    selectVPNROUTERSQueryTemplate = "SELECT IPADDR, ROWID, SOLD, BYER, SELLDATE, SELLSNUM, VPNLOGPASS, CountryCode, Region, VPNTYPE FROM VPNROUTERS WHERE IPADDR = '%s'"
     # проверяем наличие покупателей в списке в базе
     print('проверяем наличие покупателей в списке в базе...')
     for sell in sellsList:
@@ -812,7 +816,17 @@ def submitSellsFromFile():         # запись в базу только пр�
             print(updateVPNROUTERSQuery)
             cursor.execute(updateVPNROUTERSQuery)
         dbRS.commit()
-    
+        path = sellsDir + sell[1] + '-' + datetimesalt
+        os.makedirs(path, exist_ok=True)
+        dataFile = open(path + '/' + sell[1] + '.txt','a')
+        dataFile.write(sell[0] + ' | ' + result[6] + ' | ' + result[7] + ' ' + result[8] + ' | ' + result[9] + '\n')
+        if result[9] == 'OpenVPN':
+            try:
+                print('executing command: ' + 'cp ./cfg/' + sell[0] + '.ovpn ' + path + '/' + sell[0] + '.ovpn')
+                os.popen('cp ./cfg/' + sell[0] + '.ovpn ' + path + '/' + sell[0] + '.ovpn')
+            except:
+                print('File with config for ' + sell[0] + 'cant be copied to ' + path + '/' + sell[0] + '.ovpn')
+        dataFile.close()
     if len(errorIPs) > 0:
         printALine()
         print()
@@ -877,6 +891,10 @@ def checkOpenvpnConfigs():         # проверк состояния конф�
     result = cursor.fetchall()
     print("Got the list from database - starting to process it...")
     for row in result:
+    #    print('processing IP ' + row[2] )
+        if len(row[0]) == 0:
+            print('empty config!!!!!! skipping')
+            continue
         if row[0][-7:].find("\n\\'\"'\n\n") != -1:
             newcfg = row[0][:-6]
             updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE ROWID = %s"
@@ -906,7 +924,7 @@ def checkOpenvpnConfigs():         # проверк состояния конф�
             print('Config for ' + row[2] + ' fixed')
             continue
         if row[0][0] == 'b':
-            print('processing row ID ' + row[1])
+            print('processing row ID ' + str(row[1]))
             if row[0][0:2] == "b'":
                 newcfg = row[0][2:]
                 newcfgList = newcfg.split('\\n')
