@@ -898,7 +898,10 @@ def checkOpenvpnConfigs():         # проверк состояния конф�
     for row in result:
     #    print('processing IP ' + row[2] )
         if len(row[0]) == 0:
-            print('empty config!!!!!! skipping')
+            print()
+            printALine
+            print("\n!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
+            print('\n empty config %s !!!!!! skipping\n' % row[2])
             continue
         if row[0][-7:].find("\n\\'\"'\n\n") != -1:
             newcfg = row[0][:-6]
