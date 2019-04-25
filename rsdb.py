@@ -30,7 +30,7 @@ def getIPQualityScoreAPIKey():        #   выбор АПИ ключа для п
     return ipQualityScoreAPIKey
 
 def getIPtoGeplocationAPIKey():       #  выбор АПИ ключа для поиска по сайту ipToGeplocation
-    ipToGeplocationAPIKey = 'f0acbe9b985966c64d1e0bfa0b4e2497'
+    ipToGeplocationAPIKey = '419fe6ab6b96ea9eec7654cca6d00d4e'
     return ipToGeplocationAPIKey
 
 def getIPQualityScore(ipAddr):     # получение risk score с сайта www.ipqualityscore.com
@@ -46,7 +46,7 @@ def getIPQualityScore(ipAddr):     # получение risk score с сайта
 def getGetIpIntel(ipAddr):          # получение fraud score с сайта www.getipintel.net
     now = datetime.datetime.now()
     nowStr = str(now).replace(' ','').replace(':','').replace('-','').replace('.','')
-    randomEmail = nowStr + '@mail.com'
+    randomEmail = "qwerty" + nowStr[-4:] + '@gmail.com'
     checkerURL = 'http://check.getipintel.net/check.php?ip=' + ipAddr + '&contact=' + randomEmail + '&format=json'
     print(checkerURL)
     r = json.loads(requests.get(checkerURL).text)
@@ -797,16 +797,20 @@ def submitSellsFromFile():         # запись в базу только пр�
                 print()
                 doubleSellsList.append(sell[0])
                 continue
-            cursor.execute('SELECT * FROM SIDESELLS WHERE VPNID = ' + str(vpnID) + ' AND CUSTID = ' + str(customerID))
-            if cursor.fetchone() != None:
-                printALine()
-                print()
-                print("!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
-                print("VPN with IP " + sell[0] + " been ALREDY SOLD to " + sell[1] + " somedays ago")
-                print("so we cant sell it him again...")
-                print()
-                doubleSellsList.append(sell[0])
-                continue
+            print('SELECT * FROM SIDESELLS WHERE VPNID = ' + str(vpnID) + ' AND CUSTID = ' + str(customerID))
+            try:
+                cursor.execute('SELECT * FROM SIDESELLS WHERE VPNID = ' + str(vpnID) + ' AND CUSTID = ' + str(customerID))
+                if cursor.fetchone() != None:
+                    printALine()
+                    print()
+                    print("!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
+                    print("VPN with IP " + sell[0] + " been ALREDY SOLD to " + sell[1] + " somedays ago")
+                    print("so we cant sell it him again...")
+                    print()
+                    doubleSellsList.append(sell[0])
+                    continue
+            except:
+                print('mysql.connector.errors.InternalError: Unread result found !!!!!!!!!!!!!!!!!!')
             insertSIDESELLSQuery = 'INSERT INTO SIDESELLS (VPNID, CUSTID, DATE) VALUES (%s, %s, %s)'
             insertSIDESELLSargs = (vpnID, customerID, sell[2])
             print(insertSIDESELLSQuery % insertSIDESELLSargs)
@@ -864,7 +868,11 @@ def toolsMenuCheckScores():        # проверка скора по getipintel
         gIPis = sRaw[1]
         iPqs = sRaw[2]
         if sRaw[1] == '-1':
-            gIPis = getGetIpIntel(sRaw[3])
+            try:
+                gIPis = getGetIpIntel(sRaw[3])
+            except:
+                print("The answer from getipintel.com was not clear - skipping this ip %s" % sRaw[3])
+                continue
             if gIPis == '-1':
                 print()
                 print("your IP been banned by getipintel.net website. to continue you have to change thi IP. Exiting...")
