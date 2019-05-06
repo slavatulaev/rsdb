@@ -108,7 +108,7 @@ def subMenu3():         # menu for Work with VPN Routers Data
     print('0 : Go to Main Menu')
     print('1 : Get VPN Routers list for editing / selling')
     print('2 : Submit edited VPN Roters info into online Database')
-    print('3 : ... < not ready yet >')
+    print('3 : Upload OpenVPN configs from ./cfg dir into online Database')
     print('4 : ... < not ready yet >')
     printALine()
     return input()
@@ -379,7 +379,7 @@ def submitVpnRoutersDataToDB():           # запись в базу обраб�
                                             # - в основной таблице SCANRESS помечаются записи успешно обработанные
                                             # - в таблицу VPNROUTERS записываются исключительно рабочие роутеры для дальнейшей продажи
     csvFile = 'dataReady.csv'
-    print("Input Data will be taken from 'dataReady.csv' file from current directory. You can get an error in case this file is not exist")
+    input("Input Data will be taken from 'dataReady.csv' file from current directory. You can get an error in case this file is not exist \n Press any key to continue...")
     updateSCANRESSQuery = "UPDATE SCANRESS SET TAKEN = 1, VPNTYPE = %s, VPNLOGPASS = %s, DDNSURL = %s, DDNSREGDATA = %s, NOTES = %s, ISVPN = %s, VPNERROR = %s, NOTACCESSIBLE = %s, NEEDSETUP = %s, APBRIDGE = %s WHERE IP = %s AND PORT = %s"
     selectSCANRESSQuery = "SELECT CountryCode, Country, Region, RegionName, City, ISP, ASCode, ZIP FROM SCANRESS WHERE IP = %s AND PORT = %s"
     selectVPNROUTERSQuery = "SELECT IPADDR FROM VPNROUTERS WHERE IPADDR = '%s'"
@@ -695,7 +695,7 @@ def submitVpnRoutersEdited():      # загрузка в базу списка �
                     print("please prepare correct config file, put it in /cfg/ directory (in current dir) and import %s IP once more" % row["IP"])
                     setOfMissedConfigFiles.append(row["IP"])
 
-            updateArgs = (row["IP"], row["Port"], row["login:pass"], row["Device"], row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], row["CountryCode"], row["Country"], row["Region"], row["RegionName"], row["City"], row["ISP"], row["ASCode"], row["ZIP"], config_data_file, row["ipquality_score"], row["getipintel_score"], row["Sold"], row["Byer"], row["SellLink"], row["SellDate"], row["OldIP"], row["IsVPNDead"], row["isWebLoginDead"], row["RawID"])
+            updateArgs = (row["IP"], row["Port"], row["login:pass"], row["Device"], row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], row["CountryCode"], row["Country"], row["Region"], row["RegionName"], row["City"], row["ISP"], row["ASCode"], row["ZIP"], str(config_data_file), row["ipquality_score"], row["getipintel_score"], row["Sold"], row["Byer"], row["SellLink"], row["SellDate"], row["OldIP"], row["IsVPNDead"], row["isWebLoginDead"], row["RawID"])
             cursor.execute(updateVPNROUTERSQuery, updateArgs)
             print(row["IP"]+ " successfully updated in table VPNROUTERS")
             dbRS.commit()
@@ -714,6 +714,11 @@ def submitSellsFromFile():         # запись в базу только пр�
     print('in case of sell to vpnshop in the field BYER_TG_ID should be "SHOP" in all other cases telegram ID if customer')
     print('date in field DATE should be in "YY.MM.DD" format')
     print()
+    checkOnly = False
+    if (input('In case you want to check only if such IP possibly been sold to same client then input 1, otherwise just press Enter') == '1'): 
+        checkOnly = True
+    print()
+
     #input('Should we prepare data for this sell locally or put it to ft')
     now = datetime.datetime.now()
     datetimesalt = str(now.year) + str(now.month) + str(now.day) + str(now.hour) + str(now.minute) 
@@ -811,14 +816,15 @@ def submitSellsFromFile():         # запись в базу только пр�
                     continue
             except:
                 print('mysql.connector.errors.InternalError: Unread result found !!!!!!!!!!!!!!!!!!')
-            insertSIDESELLSQuery = 'INSERT INTO SIDESELLS (VPNID, CUSTID, DATE) VALUES (%s, %s, %s)'
-            insertSIDESELLSargs = (vpnID, customerID, sell[2])
-            print(insertSIDESELLSQuery % insertSIDESELLSargs)
-            cursor.execute(insertSIDESELLSQuery, insertSIDESELLSargs)
-            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET SELLSNUM = %s WHERE ROWID = %s" % (result[5]+1, vpnID)
-            print('updating SELLSNUM field in VPNROUTERS table')
-            print(updateVPNROUTERSQuery)
-            cursor.execute(updateVPNROUTERSQuery)
+            if (not checkOnly):
+                insertSIDESELLSQuery = 'INSERT INTO SIDESELLS (VPNID, CUSTID, DATE) VALUES (%s, %s, %s)'
+                insertSIDESELLSargs = (vpnID, customerID, sell[2])
+                print(insertSIDESELLSQuery % insertSIDESELLSargs)
+                cursor.execute(insertSIDESELLSQuery, insertSIDESELLSargs)
+                updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET SELLSNUM = %s WHERE ROWID = %s" % (result[5]+1, vpnID)
+                print('updating SELLSNUM field in VPNROUTERS table')
+                print(updateVPNROUTERSQuery)
+                cursor.execute(updateVPNROUTERSQuery)
         dbRS.commit()
         path = sellsDir + sell[1] + '-' + datetimesalt
         os.makedirs(path, exist_ok=True)
@@ -966,6 +972,30 @@ def checkOpenvpnConfigs():         # проверк состояния конф�
 
     return
 
+def uploadOpenVPNconfigs():
+    input('This procedure will upload ALL the configs from local directory ./cfg into online database. \n And replase all existing configs in database \n Please be very careful with it. Better delete from that folder all configs that you unsure with. \n And press any key to continue')
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+
+    for fileName in os.listdir("./cfg"):
+        if fileName.endswith(".ovpn"):
+            cfgData = open(workDirecory+"/cfg/"+fileName[:-5]+".ovpn", 'r').read() # читаем файл конфига 
+            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE IPADDR = %s"
+            updateArgs = (str(cfgData),fileName[:-5])
+            cursor.execute(updateVPNROUTERSQuery,updateArgs)
+            dbRS.commit()
+            print('Config for ' + fileName[:-5] + ' saved to DB')
+
+    cursor.close()
+    dbRS.close()
+
+    return
+
 def subSubMenu1execution():
     while True:
         sm1res = subSubMenu1()
@@ -1013,7 +1043,7 @@ def subMenu3execution():
         elif sm3res == '2':
             submitVpnRoutersEdited()
         elif sm3res == '3':
-            print('Here will be some more functions later...')
+            uploadOpenVPNconfigs()
         elif sm3res == '4':
             print('Here will be some more functions later...')
     return 
