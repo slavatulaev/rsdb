@@ -1,0 +1,9 @@
+IP Address;Port;Authorization;Server name / Realm name / Device type;Radio Off;Hidden;BSSID;ESSID;Security;Key;WPS PIN;LAN IP Address;LAN Subnet Mask;WAN IP Address;WAN Subnet Mask;WAN Gateway;Domain Name Servers;Latitude;Longitude;Comments
+24.47.68.195;8000;admin:admin;ASUS RT-N12D1, firmware: 2.0;PPTP;meradost:meradost;asusrtn12d1-195.asuscomm.com;Celtic's;WPA2;9144207512;631082;192.168.50.1;255.255.255.0;192.168.1.20;255.255.255.0;192.168.1.1;192.168.1.1;;;
+12.148.236.166;80;admin:password;ASUS TM-AC1900 Black;PPTP;mustdie:mustdie;elwyndog.asuscomm.com;Security_house;WPA2;987654321;36291243;192.168.30.1;255.255.255.0;12.148.236.166;255.255.255.192;12.148.236.129;1.1.1.1 8.8.8.8;;;
+24.178.202.106;8888;admin:password;DD-WRT (name: DD-WRT, model: WZR-HP-G300NH2);PPTP;root1234:toor1234;;millerhome;WPA;bullshit;;192.168.1.1;255.255.255.0;24.178.202.106;255.255.255.252;24.178.202.105;68.113.206.10 24.217.0.5 71.92.29.130;;;
+12.161.154.230;8080;admin:admin;Luxul WebAdmin;PPTP;qwerty:12345678;;;;;;;;;;;;;;
+24.74.80.105;8080;admin:admin;Luxul WebAdmin;PPTP;mustdie:mustdie;;;;;;;;;;;;;;
+12.68.66.82;443;admin:password;pfSense Router;PPTP;mustdie:mustdie;;;;;;;;;;;This router is not implemented. Send this IP to developers.;;;
+24.100.6.78;8000;admin:T0ma500!;RT-AC68R;PPTP;mustdie:mustdie;GreeneGables78.asuscomm.com;;;;;192.168.2.1;255.255.255.0;;;;;;;
+23.25.103.17;443;admin:password;Unknown (401 Unauthorized);PPTP;aa:aa;;;;;;;;;;;;;;

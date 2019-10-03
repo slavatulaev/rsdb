@@ -1,0 +1,19 @@
+IP Address;Port;Authorization;Server name / Realm name / Device type;Radio Off;Hidden;BSSID;ESSID;Security;Key;WPS PIN;LAN IP Address;LAN Subnet Mask;WAN IP Address;WAN Subnet Mask;WAN Gateway;Domain Name Servers;Latitude;Longitude;Comments
+206.248.14.66;80;admin:hyh2:>36w;ASUS RT-N53 Black;PPTP;myvpn:qwe123;vuidfewjkfsd881fweq.asuscomm.com;ASUS;WPA2;multipass;32689891;192.168.1.1;255.255.255.0;206.248.14.66;255.255.255.0;206.248.14.1;206.248.0.3 206.248.0.4 8.8.8.8;;;
+198.153.93.60;80;admin:password;Cisco Linksys DD-WRT;PPTP;markus:markus;;;;;;;;"<option value=\""ap\"" selected=\""selected\"" >"" + wl_basic.ap + ""</option>";;;;;;
+173.255.185.67;80;root:root;DD-WRT (name: DD-WRT, model: Dlink DIR-810L B1);PPTP;vpn:vpn;;dd-wrt;WPA2;1029384756;;192.168.2.1;255.255.255.0;192.168.1.74;255.255.255.0;192.168.1.254;118.30.28.38 118.30.28.39 192.168.1.254;;;
+173.255.185.194;80;admin:admin;DD-WRT (name: DD-WRT, model: Linksys E1000 v2.1);PPTP;system:system;;dd-wrt;None;<empty>;;192.168.1.1;255.255.255.0;192.168.0.107;255.255.255.0;192.168.0.1;118.30.28.38 118.30.28.39 208.94.176.20;;;
+173.255.185.253;80;admin:admin;DD-WRT (name: DD-WRT, model: Linksys E2500);PPTP;vpn:vpn;;Jarvis;WPA/WPA2;B1gGuyWP;;10.20.1.1;255.255.255.0;192.168.0.10;255.255.255.0;192.168.0.1;118.30.28.38 118.30.28.39 208.94.176.20;;;
+173.255.160.43;80;admin:admin;DD-WRT (name: DD-WRT, model: Linksys E2500);PPTP;admin:admin;;;;;;;;192.168.5.181;255.255.255.0;192.168.5.1;118.30.28.38 118.30.28.39 195.226.228.72;;;
+173.245.207.36;80;admin:admin;DD-WRT (name: DD-WRT, model: Linksys E900);PPTP;vpn:vpn;;dd-wrt;None;<empty>;;192.168.1.1;255.255.255.0;192.168.0.11;255.255.255.0;192.168.0.1;173.245.206.254 205.185.217.190 208.67.222.222;;;
+173.255.185.66;80;admin:admin;DD-WRT (name: DD-WRT, model: Linksys E900);PPTP;sv:sv;;dd-wrt;WPA2;juliusmayson21;;192.168.1.1;255.255.255.0;192.168.0.7;255.255.255.0;192.168.0.1;118.30.28.38 118.30.28.39 209.88.128.25;;;
+173.255.184.50;80;admin:admin;DD-WRT (name: DD-WRT, model: Netgear WNR3500 v2/U/L v1);PPTP;admin:admin;;usa-washroom;WPA2;pa404410;;192.168.3.1;255.255.255.0;192.168.1.4;255.255.255.0;192.168.1.1;192.168.1.1;;;
+174.108.81.25;8080;admin:qaz1XsW2;Luxul WebAdmin;PPTP;mustdie:mustdie1;;;;;;;;;;;;;;
+184.58.126.116;80;admin:qaz1XsW2;Luxul WebAdmin;PPTP;mustdie:mustdie1;;;;;;;;;;;;;;
+192.225.114.168;8001;admin:admin;MikroTik RB3011UiAS (RouterOS v6.42.7);PPTP;russell:cincoutt;;;;;;192.168.110.1;255.255.255.0;10.255.255.1;255.255.255.0;192.225.114.161;208.67.222.222 208.67.220.220;;;Serial: 783E078C3754
+204.197.150.221;80;clearuser2:clearfiber5541;MikroTik RBCCR1072-1G-8S+ (RouterOS v6.41.3);PPTP;ppp1:ppp1;;;;;;192.168.0.4;255.255.255.0;10.205.205.1;255.255.255.248;10.208.89.1;8.8.8.8 8.8.4.4;;;Serial: 7273079A416C
+206.72.201.211;80;admin:242019;MikroTik RouterOS v6.40.1;PPTP;ppp3:ppp3;;;;;;206.72.201.211;255.255.255.0;206.72.201.211;255.255.255.0;206.72.201.209;64.20.34.50;;;
+174.58.221.161;80;admin:pfsense;pfSense Router;PPTP;vpn:vpn;;;;;;;;;;;This router is not implemented. Send this IP to developers.;;;
+198.27.194.194;80;admin:pfsense;pfSense Router;PPTP;vpn:vpn;;;;;;;;;;;This router is not implemented. Send this IP to developers.;;;
+198.27.194.201;80;admin:pfsense;pfSense Router;PPTP;admin:admin;;;;;;;;;;;This router is not implemented. Send this IP to developers.;;;
+192.34.121.106;80;<empty>:password;TP-Link LuCI, model: Archer C59;PPTP;admin:admin;;TewesFarms;WPA/WPA2;DTewesFarms;56511772;192.168.1.1;255.255.255.0;192.34.121.106;255.255.255.0;192.34.121.1;192.34.120.10 8.8.8.8;;;

@@ -1,0 +1,4 @@
+"IP Address";"Port";"Time (ms)";"Status";"Authorization";"Server name / Realm name / Device type";"Radio Off";"Hidden";"BSSID";"ESSID";"Security";"Key";"WPS PIN";"LAN IP Address";"LAN Subnet Mask";"WAN IP Address";"WAN Subnet Mask";"WAN Gateway";"Domain Name Servers";"Latitude";"Longitude";"Comments"
+"88.99.25.181";"8080";"16";"Done";"admin:password";"HAProxy Statistics";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";""
+"88.99.25.180";"8080";"47";"Done";"admin:password";"HAProxy Statistics";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";""
+"77.64.181.104";"8080";"47";"Done";"admin:Breslau4.333";"ASUS RT-AC5300, firmware: 2.0";"";"";"34:97:F6:6C:2D:F0";"IDIOTE Nachbar";"WPA2";"Breslau4.3333";"64853130";"192.168.1.1";"255.255.255.0";"77.64.181.104";"255.255.252.0";"77.64.180.1";"217.68.162.126 62.117.5.126";"";"";""

@@ -1,0 +1,41 @@
+IP Address;Port;Time (ms);Status;Authorization;Server name / Realm name / Device type;Radio Off;Hidden;BSSID;ESSID;Security;Key;WPS PIN;LAN IP Address;LAN Subnet Mask;WAN IP Address;WAN Subnet Mask;WAN Gateway;Domain Name Servers;Latitude;Longitude;Comments
+73.243.243.4;80;140;Done;admin:password;ASUS RT-AC66U, firmware: 2.0;;;E0:3F:49:9D:33:C0;Secured;WPA/WPA2;tomandpaul1993;91598714;192.168.1.1;255.255.255.0;0.0.0.0;0.0.0.0;0.0.0.0;;;;
+75.139.182.96;80;172;Done;admin:admin;ASUS RT-AC68U Black;;;E0:3F:49:EF:1C:00;Mattes;WPA2;MayaJoy1;91947147;192.168.1.1;255.255.255.0;75.139.182.96;255.255.248.0;75.139.176.1;118.30.28.38 118.30.28.39;;;
+75.139.182.96;8008;188;Done;admin:admin;ASUS RT-AC68U Black;;;E0:3F:49:EF:1C:00;Mattes;WPA2;MayaJoy1;91947147;192.168.1.1;255.255.255.0;75.139.182.96;255.255.248.0;75.139.176.1;118.30.28.38 118.30.28.39;;;
+72.76.201.99;8443;94;Done;admin:Magic#2;ASUS RT-AC88U, firmware: 2.0;;;34:97:F6:20:E3:C8;DLQM2;WPA2;CG45BMJGWFVW8228;88833866;192.168.1.1;255.255.255.0;;;;;;;
+73.32.42.106;8443;125;Done;mrossel25:Bambi0325;ASUS RT-ACRH13, firmware: 2.0;;;0C:9D:92:B8:73:D0;RosselCasa2G;WPA2;mr0121mr0325;23876187;192.168.50.1;255.255.255.0;73.32.42.106;255.255.255.0;73.32.42.1;75.75.75.75 75.75.76.76;;;
+74.66.201.227;8888;94;Done;admin:energy@us4u;ASUS RT-N10P Black;;;BC:EE:7B:81:C9:F0;ASUS;WPA2;pa55word;81353002;192.168.1.1;255.255.255.0;74.66.201.227;255.255.240.0;74.66.192.1;209.18.47.61 209.18.47.62;;;
+73.93.54.89;80;171;Done;admin:GHapX$7862J99MKc;ASUS RT-N56U Black;;;BC:EE:7B:F0:13:A6;ASUS;None;<empty>;64017709;192.168.1.1;255.255.255.0;73.93.54.89;255.255.254.0;73.93.54.1;75.75.75.75 75.75.76.76;;;
+76.10.47.181;80;110;Done;admin:admin;ASUS RT-N56U Black;;;F4:6D:04:6D:09:B6;ASUS;WPA2;192837465;27634561;192.168.1.1;255.255.255.0;0.0.0.0;0.0.0.0;0.0.0.0;118.30.28.38 118.30.28.39;;;
+76.180.54.116;80;94;Done;admin:twiggy1;ASUS RT-N56U Black;;;54:04:A6:D3:77:90;Help! I'm trapped in a router!;WPA2;1234567890;24254373;192.168.1.1;255.255.255.0;76.180.54.116;255.255.224.0;76.180.32.1;209.18.47.61 209.18.47.62;;;
+96.37.248.58;80;109;Done;root:root;DD-WRT (name: WRT54G, model: Linksys WRT54G/GL/GS);;;00:12:17:46:96:63;linksys;;;;192.168.1.1;255.255.255.0;96.37.248.58;255.255.252.0;96.37.248.1;118.30.28.38 118.30.28.39 71.10.216.1;;;
+73.6.30.147;8443;141;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+73.183.157.221;8443;141;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+76.30.13.24;8443;125;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+72.190.223.73;8443;172;Done;admin:password;Luxul XBR-4400 Login;;;;;;;;;;;;;;;;
+73.23.55.187;80;141;Done;admin:admin;Luxul XWR-1750 Login;;;;;;;;;;;;;;;;
+76.23.181.24;8088;125;Done;admin:admin;Luxul XWR-1750 Login;;;;;;;;;;;;;;;;
+74.214.251.56;80;156;Done;root:admin;MikroTik RB750GL (RouterOS v6.42.9);;;D4:CA:6D:72:14:0C;;;;;192.168.1.220;255.255.255.0;74.214.251.56;255.255.255.192;74.214.251.1;8.8.8.8 8.8.4.4;;;Serial: 3B050298FB3F
+73.222.143.172;80;157;Done;root:root;OpenWrt LuCI;;;E4:71:85:32:23:60;;;;;10.10.10.254;255.255.255.0;73.222.143.172;255.255.254.0;;;;;
+74.76.137.105;80;110;Done;admin:pfsense;pfSense Router;;;;;;;;;;;;;This router is not implemented. Send this IP to developers.;;;
+72.76.243.69;443;93;Done;admin:ADMIN;stonemtnnj;;;;;;;;;;;;;;;;
+72.182.168.87;8080;156;Done;admin:admin;Thomson/Technicolor, firmware: 5.5.10.7;;;;;;;;;;;;;;;;"SN: 0315-5354-00-03-2385;  Cable MAC: 94:fb:b2:96:c5:28"
+73.139.82.179;8080;156;Done;admin:admin;Thomson/Technicolor, firmware: 5.5.10.7;;;;;;;;;;;;;;;;"SN: 1125-5354-00-03-0548;  Cable MAC: 94:fb:b2:98:2d:15"
+73.181.122.211;8080;156;Done;admin:admin;Thomson/Technicolor, firmware: 5.5.10.7;;;;;;;;;;;;;;;;"SN: 1406-5354-00-03-1107;  Cable MAC: 94:fb:b2:a4:17:8d"
+74.71.221.103;8080;125;Done;admin:admin;Thomson/Technicolor, firmware: 5.5.7.13;;;;;;;;;;;;;;;;"SN: 0303-5352-00-03-0824;  Cable MAC: 00:1c:7b:e6:2d:0e"
+73.4.103.153;8080;109;Done;admin:admin;Thomson/Technicolor, firmware: v5.5.8.6CC;;;;;;;;;;;;;;;;"SN: 2333-5352-00-03-0020;  Cable MAC: 00:1c:7b:e8:0e:b1"
+73.18.96.152;8080;125;Done;admin:admin;Thomson/Technicolor, firmware: v5.5.8.6CC;;;;;;;;;;;;;;;;"SN: 2753-5352-00-03-0063;  Cable MAC: 00:1c:7b:ce:cd:ed"
+73.193.84.82;8080;172;Done;admin:admin;Thomson/Technicolor, firmware: v5.5.8.6CC;;;;;;;;;;;;;;;;"SN: 3383-5352-00-03-1170;  Cable MAC: 00:1c:7b:eb:96:ea"
+76.90.193.174;443;172;Done;admin:admin;Tomato Version 1.28 by shibby (name: TomatoUSB, model: Asus RT-N12 B1);;;54:A0:50:84:0D:62;Katsaros;WPA2;9099490828;;192.168.0.1;255.255.255.0;76.90.193.174;255.255.240.0;76.90.192.1;209.18.47.63 209.18.47.62;;;
+73.178.138.206;80;93;Done;<empty>:password;TP-Link LuCI, model: Archer C9;;;;;;;;;;;;;;;;
+73.178.138.206;443;109;Done;<empty>:password;TP-Link LuCI, model: Archer C9;;;0C:80:63:80:A5:63;456Langley2.4G;WPA2;Harley07;88260860;192.168.0.1;255.255.255.0;73.178.138.206;255.255.254.0;73.178.138.1;75.75.75.75 75.75.76.76;;;
+96.31.237.228;80;156;Done;admin:admin;TP-LINK TL-ER604W(UN);;;EC:08:6B:E1:1A:74;SHIPPING_T1_Wireless;WPA/WPA2;BOYLE258;;192.168.0.1;255.255.255.0;96.31.237.228;255.255.255.248;96.31.237.225;64.60.0.17 64.60.0.18;;;
+74.95.165.201;443;125;Done;admin:admin;Unknown (401 Unauthorized);;;;;;;;;;;;;;;;
+74.117.242.142;443;156;Done;admin:password;Unknown (401 Unauthorized);;;;;;;;;;;;;;;;
+75.138.79.251;443;203;Done;admin:password;Unknown (401 Unauthorized);;;;;;;;;;;;;;;;
+72.170.226.17;8081;141;Done;admin:nimda;UTT;;;;;;;;;;;;;;;;
+72.245.245.146;8081;234;Done;airlive:airlive;UTT;;;;;;;;;;;;;;;;
+73.234.40.144;8081;110;Done;airlive:airlive;UTT;;;;;;;;;;;;;;;;
+75.99.59.178;8443;109;Done;admin:admin;UTT;;;;;;;;;;;;;;;;
+76.100.142.47;8081;109;Done;admin:airlive;UTT;;;;;;;;;;;;;;;;
+76.112.47.30;8081;187;Done;admin:admin;UTT;;;;;;;;;;;;;;;;

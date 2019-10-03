@@ -1,0 +1,3 @@
+IP Address;Port;Authorization;Server name / Realm name / Device type;Type;Log/Pass;DDNS;ESSID;Security;Key;WPS PIN;LAN IP Address;LAN Subnet Mask;WAN IP Address;WAN Subnet Mask;WAN Gateway;Domain Name Servers;Latitude;Longitude;Comments
+157.131.78.229;8443;admin:password;NETGEAR R7500v2;OpenVPN;;canetr7500v2163.mynetgear.com;;;;;;;;;;;;;
+198.27.190.82;80;admin:qaz1XsW2!;Belkin Linksys Smart Wi-Fi (name: Linksys10214, model: Linksys, LLC WRT1900AC);OpenVPN;sysadmin:sysadmin;Linksys10214@finvest.pw;;;;;;;;;;;;;

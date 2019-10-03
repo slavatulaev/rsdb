@@ -1,0 +1,6 @@
+IP Address;Port;Authorization;Server name / Realm name / Device type;Radio Off;Hidden;BSSID;ESSID;Security;Key;WPS PIN;LAN IP Address;LAN Subnet Mask;WAN IP Address;WAN Subnet Mask;WAN Gateway;Domain Name Servers;Latitude;Longitude;Comments
+104.231.67.214;80;admin:admin;ASUS RT-AC66U Black;PPTP;host:host;asus40968.asuscomm.com;gumdrop;WPA2;G4196313250;36238187;192.168.1.1;255.255.255.0;104.231.67.214;255.255.240.0;104.231.64.1;209.18.47.62 209.18.47.63;;;
+104.237.114.34;80;root:admin;DD-WRT (name: DD-WRT, model: ECS H81H3-M4);PPTP;vpn:vpn;;dd-wrt;;;;10.0.1.1;255.255.255.0;104.237.114.34;255.255.252.0;104.237.115.254;8.8.8.8 8.8.4.4 104.237.117.18;;;
+108.185.98.47;443;admin:admin;DrayTek Vigor2925;PPTP;vpn:vpn;;DrayTek;WPA/WPA2;0;;192.168.1.1;255.255.255.0;108.185.98.47;;108.185.96.1;209.18.47.61;;;
+136.143.53.209;80;admin:admin;DrayTek Vigor2925n+;PPTP;vpn:vpn;;Henkie2;WPA/WPA2;b8a05d304de7ffa6688418f89c;;192.168.1.1;255.255.255.0;136.143.53.209;;136.143.48.1;83.128.0.2;;;
+140.82.253.145;443;admin:nimda;RV082;PPTP;it:password1;;;;;;;;;;;;;;

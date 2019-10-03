@@ -1,0 +1,11 @@
+IP Address;Port;Authorization;Server name / Realm name / Device type;Radio Off;Hidden;BSSID;ESSID;Security;Key;WPS PIN;LAN IP Address;LAN Subnet Mask;WAN IP Address;WAN Subnet Mask;WAN Gateway;Domain Name Servers;Latitude;Longitude;Comments
+5.189.62.172;8443;admin:Kk11091977;ASUS RT-AC66U, firmware: 2.0;OpenVPN;vpn:vpn;ruvladik518962172.asuscomm.com;;;;;;;;;;;;;
+188.68.129.34;22080;admin:mastihin6n1;ASUS RT-N10P Black;PPTP;vpnvpn:qwerty;home12129.asuscomm.com;;;;;;;;;;;;;
+178.75.44.5;8443;admin:admin;ASUS RT-N11P Black;PPTP;vpn:vpn;ruvladik17875445.asuscomm.com;;;;;;;;;;;;;
+217.24.184.130;22080;admin:ghbdtn;ASUS RT-N12 Black;PPTP;vpn:vpn;ruvladik21724184130.asuscomm.com;;;;;;;;;;;;;
+79.135.64.40;8080;admin:14724104;ASUS RT-N12VP Black;PPTP;vpnvpn:qwerty;home28081905.asuscomm.com;;;;;;;;;;;;;
+46.4.177.193;80;admin:sarvit!123;MikroTik RouterOS v6.40.3;PPTP;vpn:vpnvpn;;;;;;;;;;;;;;
+37.247.92.1;443;admin:admin;DrayTek Vigor2912;PPTP;aa:aa;;;;;;;;;;;;;;
+37.247.92.11;443;admin:admin;DrayTek Vigor2912;PPTP;aa:aa;;;;;;;;;;;;;;
+37.247.92.51;443;admin:admin;DrayTek Vigor2912;PPTP;aa:aa;;;;;;;;;;;;;;
+37.247.92.169;443;admin:admin;DrayTek Vigor2912;PPTP;aa:aa;;;;;;;;;;;;;;

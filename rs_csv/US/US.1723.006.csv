@@ -1,0 +1,28 @@
+IP Address;Port;Time (ms);Status;Authorization;Server name / Realm name / Device type;Radio Off;Hidden;BSSID;ESSID;Security;Key;WPS PIN;LAN IP Address;LAN Subnet Mask;WAN IP Address;WAN Subnet Mask;WAN Gateway;Domain Name Servers;Latitude;Longitude;Comments
+98.215.78.126;8001;125;Done;ksmith:Ksmith010;ASUS RT-AC66U_B1, firmware: 2.0;;;38:D5:47:73:BC:38;home;WPA2;5mith3346;87519556;192.168.1.1;255.255.255.0;98.215.78.126;255.255.252.0;98.215.76.1;208.67.222.222 4.2.2.2;;;
+104.145.222.160;80;110;Done;admin:admin;ASUS RT-AC68U Black;;;D8:50:E6:D0:84:88;Whiskey Main;WPA2;MsWhiskey69;43595419;192.168.1.1;255.255.255.0;0.0.0.0;0.0.0.0;0.0.0.0;118.30.28.38 118.30.28.39;;;
+96.46.25.216;8081;172;Done;admin:!Came0Came0!;ASUS RT-N66U Black;;;60:A4:4C:39:E1:58;VistaView;WPA2;Came0Came0;44679378;192.168.1.5;255.255.255.0;0.0.0.0;0.0.0.0;0.0.0.0;;;;
+98.248.177.128;8888;172;Done;admin:t0uchingLives!;ASUS RT-N66U, firmware: 2.0;;;D8:50:E6:94:D2:80;McKinNet;WPA2;AcucraniatsU;34831151;192.168.1.1;255.255.255.0;98.248.177.128;255.255.252.0;98.248.176.1;8.8.8.8 8.8.4.4;;;
+104.34.204.130;8081;172;Done;admin:!nt3l3c0m;ASUS RT-N66U, firmware: 2.0;;;AC:9E:17:AF:DF:E8;CanadaWireless;WPA2;moetwireless1;49916577;192.168.0.1;255.255.255.0;104.34.204.130;255.255.240.0;104.34.192.1;209.18.47.63 209.18.47.62;;;
+104.153.151.43;80;156;Done;cmwarner03:CMilbb03;ASUS RT-N66U, firmware: 2.0;;;78:24:AF:96:F3:D8;littleb_ext;None;<empty>;86968133;192.168.1.1;255.255.255.0;0.0.0.0;0.0.0.0;0.0.0.0;;;;
+96.93.192.50;8080;203;Done;admin:admin;COAUR-3033-RT-C42-01;;;;;;;;;;;;;;;;
+98.158.120.231;80;156;Done;admin:admin;DD-WRT (name: Cali_Rocks_VPN, model: Linksys E2500);;;C0:C1:C0:BD:33:52;Cali_Rocks_VPN;WPA2;luv4life123!!!;;192.168.1.1;255.255.255.0;192.168.2.101;255.255.255.0;192.168.2.1;98.158.112.14 98.158.112.60 208.67.222.222;;;
+98.158.120.226;80;203;Done;admin:admin;DD-WRT (name: DD-WRT, model: Linksys E1000 v2.1);;;58:6D:8F:08:15:9F;dd-wrt;WPA2;manolosams;;10.0.0.1;255.255.255.0;192.168.1.12;255.255.255.0;192.168.1.1;118.30.28.38 118.30.28.39 192.168.1.1;;;
+104.34.152.161;80;172;Done;admin:admin;DD-WRT (name: DD-WRT, model: Netgear R8000);;;78:D2:94:0E:32:4A;Slack House_5G_1;WPA2;toomanydogs;;10.0.1.1;;104.34.152.161;255.255.224.0;104.34.128.1;208.67.222.222 208.67.220.220 209.18.47.61;;;
+98.152.239.54;443;172;Done;admin:admin;DrayTek Vigor2925n;;;00:1D:AA:5A:F6:50;DrayTek;WPA/WPA2;4Q8B3Z3HDX58T;;192.168.1.1;255.255.255.0;98.152.239.54;;98.152.239.53;209.18.47.61;;;
+97.90.23.111;8443;172;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+98.194.196.9;8443;172;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+104.192.27.165;80;125;Done;admin:admin;Luxul WebAdmin;;;;;;;;;;;;;;;;
+98.196.169.101;8443;172;Done;admin:password;Luxul XBR-4400 Login;;;;;;;;;;;;;;;;
+104.136.18.92;80;188;Done;admin:admin;Luxul XWR-1750 Login;;;;;;;;;;;;;;;;
+98.254.57.156;8443;140;Done;admin:1234;NETGEAR C7000-100NAS;;;;;;;;;;;;;;;;
+97.76.73.134;8443;140;Done;admin:1234;NETGEAR R6220;-;-;<no wireless>;-;-;-;-;;;;;;;;;
+97.89.181.182;8443;125;Done;admin:1234;NETGEAR R6220;-;-;<no wireless>;-;-;-;-;;;;;;;;;
+98.189.36.106;8443;156;Done;admin:1234;NETGEAR R6220;-;-;<no wireless>;-;-;-;-;;;;;;;;;
+96.56.132.2;8443;78;Done;admin:1234;NETGEAR R6400v2;;;;;;;;;;;;;;;;
+96.93.159.30;8443;109;Done;admin:1234;NETGEAR R6400v2;;;;;;;;;;;;;;;;
+98.0.150.234;8443;94;Done;admin:1234;NETGEAR R6400v2;;;;;;;;;;;;;;;;
+96.78.211.49;8081;109;Done;admin:nimda;UTT;;;;;;;;;;;;;;;;
+96.78.55.9;8081;172;Done;admin:admin;UTT;;;;;;;;;;;;;;;;
+98.202.52.217;8081;156;Done;airlive:airlive;UTT;;;;;;;;;;;;;;;;
+104.162.112.108;8081;235;Done;airlive:airlive;UTT;;;;;;;;;;;;;;;;
